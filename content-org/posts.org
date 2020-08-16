@@ -11,3 +11,7 @@
 :END:
 
 This is my first post.
+
+# Local Variables:
+# eval: (org-hugo-auto-export-mode)
+# End:
