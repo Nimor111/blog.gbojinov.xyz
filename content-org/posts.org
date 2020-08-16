@@ -1,0 +1,13 @@
+#+HUGO_SECTION: posts
+#+HUGO_BASE_DIR: ~/Nextcloud/nimors-blog
+
+* Posts
+** First post 
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: posts/emacs-ox-hugo
+:EXPORT_FILE_NAME: index
+:EXPORT_DATE: <2020-08-16 Sun>
+:EXPORT_HUGO_CUSTOM_FRONT_MATTER: :summary Writing a hugo post in Emacs org mode.
+:END:
+
+This is my first post.
