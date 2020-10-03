@@ -1,0 +1,16 @@
+#+hugo_base_dir: ../
+
+# Local Variables:
+# eval: (org-hugo-auto-export-mode)
+# End:
+
+* About
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: /
+:EXPORT_FILE_NAME: about
+:EXPORT_DATE: 2020-10-03
+:END:
+
+*Hi*
+
+** This is a heading

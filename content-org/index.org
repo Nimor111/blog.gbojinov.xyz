@@ -1,0 +1,14 @@
+#+hugo_base_dir: ../
+
+# Local Variables:
+# eval: (org-hugo-auto-export-mode)
+# End:
+
+* Index
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: /
+:EXPORT_FILE_NAME: _index
+:EXPORT_DATE: 2020-10-03
+:END:
+
+** This is the index

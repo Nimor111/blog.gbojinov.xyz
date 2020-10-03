@@ -1,10 +1,10 @@
 +++
-title = "First post"
+title = "Second post"
 author = ["gbojinov"]
-date = 2020-08-16T00:00:00+03:00
+date = 2020-09-01T00:00:00+03:00
 tags = ["emacs"]
 draft = false
 summary = "Writing a hugo post in Emacs org mode."
 +++
 
-This is my first posty
+This is a test posty.

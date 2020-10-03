@@ -1,8 +1,12 @@
-#+HUGO_SECTION: posts
-#+HUGO_BASE_DIR: ~/Nextcloud/nimors-blog
+#+hugo_base_dir: ../
+#+hugo_section: ./
+
+# Local Variables:
+# eval: (org-hugo-auto-export-mode)
+# End:
 
 * Posts
-** First post 
+** First post :emacs:
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: posts/emacs-ox-hugo
 :EXPORT_FILE_NAME: index
@@ -10,8 +14,14 @@
 :EXPORT_HUGO_CUSTOM_FRONT_MATTER: :summary Writing a hugo post in Emacs org mode.
 :END:
 
-This is my first post.
+This is my first posty
+** Second post :emacs:
+:PROPERTIES:
+:EXPORT_HUGO_SECTION: posts/test-post
+:EXPORT_FILE_NAME: test
+:EXPORT_DATE: <2020-09-01 Tue>
+:EXPORT_HUGO_CUSTOM_FRONT_MATTER: :summary Writing a hugo post in Emacs org mode.
+:END:
 
-# Local Variables:
-# eval: (org-hugo-auto-export-mode)
-# End:
+This is a test posty.
+

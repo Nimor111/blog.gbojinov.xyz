@@ -6,7 +6,7 @@
     <description>Recent content on Nimor&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 16 Aug 2020 00:00:00 +0300</lastBuildDate>
+    <lastBuildDate>Tue, 01 Sep 2020 00:00:00 +0300</lastBuildDate>
     
 	<atom:link href="https://blog.gbojinov.xyz/index.xml" rel="self" type="application/rss+xml" />
     
@@ -17,6 +17,15 @@
       <pubDate>Sun, 16 Aug 2020 00:00:00 +0300</pubDate>
       
       <guid>https://blog.gbojinov.xyz/posts/emacs-ox-hugo/</guid>
+      <description>Writing a hugo post in Emacs org mode.</description>
+    </item>
+    
+    <item>
+      <title>Second post</title>
+      <link>https://blog.gbojinov.xyz/posts/test-post/test/</link>
+      <pubDate>Tue, 01 Sep 2020 00:00:00 +0300</pubDate>
+      
+      <guid>https://blog.gbojinov.xyz/posts/test-post/test/</guid>
       <description>Writing a hugo post in Emacs org mode.</description>
     </item>
     

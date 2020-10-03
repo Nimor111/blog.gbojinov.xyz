@@ -1,28 +1,76 @@
 baseURL = "https://blog.gbojinov.xyz"
 languageCode = "en-us"
 title = "Nimor's blog"
-theme = "nix"
+theme = "terminal"
+paginate = 5
 
 publishDir = "docs"
 
-[menu]
-  [[menu.header]]
-    name = "etc/posts"
-    weight = 0
-    url = "posts"
-  [[menu.header]]
-    name = "usr/about"
-    weight = 1
-    url = "about"
+# Nix theme config
+# [menu]
+#   [[menu.header]]
+#     name = "etc/posts"
+#     weight = 0
+#     url = "posts"
+#   [[menu.header]]
+#     name = "usr/about"
+#     weight = 1
+#     url = "about"
 
+# [params]
+#   GithubID = "Nimor111"
+#   TwitterID = "Nimor111"
+#   LinkedInID = "georgi-bojinov-325b85133"
+#   Name = "Georgi Bozhinov"
+#   HeaderUsername = "gbojinov"
+#   HeaderHostname = "blog.xyz"
+#   Email = "georgi.bojinov@hotmail.com"
+#   About = "Welcome to my blog. Here you will mostly find content related to (but not limited to) Nix, Functional Programming, Emacs, Org mode and Books. Hope you enjoy your stay."
+#   ProfilePicture = "/profile.jpg"
+#   Favicon = "/favicon.ico"
+
+# Terminal theme config
 [params]
-  GithubID = "Nimor111"
-  TwitterID = "Nimor111"
-  LinkedInID = "georgi-bojinov-325b85133"
-  Name = "Georgi Bozhinov"
-  HeaderUsername = "gbojinov"
-  HeaderHostname = "blog.xyz"
-  Email = "georgi.bojinov@hotmail.com"
-  About = "Welcome to my blog. Here you will mostly find content related to (but not limited to) Nix, Functional Programming, Emacs, Org mode and Books. Hope you enjoy your stay."
-  ProfilePicture = "/profile.jpg"
-  Favicon = "/favicon.ico"
+  contentTypeName = "about"
+  themeColor = "orange"  
+  showMenuItems = 5
+  centerTheme = true
+  showLanguageSelector = false 
+  fullWidthTheme = false
+  showLastUpdated = false
+
+[params.twitter]
+  creator = "Nimor111"
+  site = ""
+
+[languages]
+  [languages.en]
+    languageName = "English"
+    title = "Nimor's blog"
+    subtitle = "A simple, retro theme for Hugo"
+    owner = ""
+    keywords = ""
+    copyright = ""
+    menuMore = "Show more"
+    readMore = "Read more"
+    readOtherPosts = "Read other posts"
+    missingContentMessage = "Page not found..."
+    missingBackButtonLabel = "Back to home page"
+
+    [languages.en.params.logo]
+      logoText = "Nimor's blog"
+      logoHomeLink = "/"
+
+    [languages.en.menu]
+      [[languages.en.menu.main]]
+        identifier = "about"
+        name = "About"
+        url = "/about"
+      [[languages.en.menu.main]]
+        identifier = "posts"
+        name = "Posts"
+        url = "/posts"
+      [[languages.en.menu.main]]
+        identifier = "showcase"
+        name = "Showcase"
+        url = "/showcase"
