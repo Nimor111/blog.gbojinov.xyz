@@ -12,20 +12,20 @@
     
     
     <item>
-      <title>First post</title>
-      <link>https://blog.gbojinov.xyz/posts/emacs-ox-hugo/</link>
-      <pubDate>Sun, 16 Aug 2020 00:00:00 +0300</pubDate>
-      
-      <guid>https://blog.gbojinov.xyz/posts/emacs-ox-hugo/</guid>
-      <description>Writing a hugo post in Emacs org mode.</description>
-    </item>
-    
-    <item>
       <title>Second post</title>
       <link>https://blog.gbojinov.xyz/posts/test-post/test/</link>
       <pubDate>Tue, 01 Sep 2020 00:00:00 +0300</pubDate>
       
       <guid>https://blog.gbojinov.xyz/posts/test-post/test/</guid>
+      <description>Writing a hugo post in Emacs org mode.</description>
+    </item>
+    
+    <item>
+      <title>First post</title>
+      <link>https://blog.gbojinov.xyz/posts/emacs-ox-hugo/</link>
+      <pubDate>Sun, 16 Aug 2020 00:00:00 +0300</pubDate>
+      
+      <guid>https://blog.gbojinov.xyz/posts/emacs-ox-hugo/</guid>
       <description>Writing a hugo post in Emacs org mode.</description>
     </item>
     
