@@ -1,5 +1,5 @@
 * blog.gbojinov.xyz
-My personal blog, build on Hugo and using the wonderful [[https://github.com/LordMathis/hugo-theme-nix][Nix]] theme.
+My personal blog, build on Hugo and using the wonderful [[https://github.com/panr/hugo-theme-terminal][Terminal]] theme.
 Posts are written in an org mode file ~posts.org~, and I use [[https://ox-hugo.scripter.co/][ox-hugo]] to export it to hugo markdown.
 
 ** Building locally 
