@@ -8,41 +8,23 @@
   </url>
   
   <url>
-    <loc>https://blog.gbojinov.xyz/tags/emacs/</loc>
-    <lastmod>2020-09-01T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://blog.gbojinov.xyz/</loc>
-    <lastmod>2020-09-01T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://blog.gbojinov.xyz/posts/</loc>
-    <lastmod>2020-09-01T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://blog.gbojinov.xyz/posts/test-post/</loc>
-    <lastmod>2020-09-01T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://blog.gbojinov.xyz/tags/</loc>
-    <lastmod>2020-09-01T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://blog.gbojinov.xyz/posts/emacs-ox-hugo/</loc>
-    <lastmod>2020-08-16T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://blog.gbojinov.xyz/categories/</loc>
   </url>
   
   <url>
+    <loc>https://blog.gbojinov.xyz/</loc>
+  </url>
+  
+  <url>
+    <loc>https://blog.gbojinov.xyz/posts/</loc>
+  </url>
+  
+  <url>
     <loc>https://blog.gbojinov.xyz/categories/posts/</loc>
+  </url>
+  
+  <url>
+    <loc>https://blog.gbojinov.xyz/tags/</loc>
   </url>
   
 </urlset>

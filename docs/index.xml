@@ -6,7 +6,6 @@
     <description>Recent content on Nimor&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 01 Sep 2020 00:00:00 +0300</lastBuildDate>
     
 	<atom:link href="https://blog.gbojinov.xyz/index.xml" rel="self" type="application/rss+xml" />
     
@@ -20,24 +19,6 @@
       <description>Hello and welcome to my blog My name is Georgi Bojinov, you will see me mostly as Nimor on the internet.
 I am a programmer by degree (computer science) and by passion. I currently work as a Scala developer at Ocado Technology. I also have experience with Python and Node.js, and a bit of Golang. I enjoy functional programming immensely. Also, I like the Nix package manager.
 I like exploring new languages and technologies, but at the end of the day getting things done is my top priority.</description>
-    </item>
-    
-    <item>
-      <title>Second post</title>
-      <link>https://blog.gbojinov.xyz/posts/test-post/</link>
-      <pubDate>Tue, 01 Sep 2020 00:00:00 +0300</pubDate>
-      
-      <guid>https://blog.gbojinov.xyz/posts/test-post/</guid>
-      <description>Writing a hugo post in Emacs org mode.</description>
-    </item>
-    
-    <item>
-      <title>First post</title>
-      <link>https://blog.gbojinov.xyz/posts/emacs-ox-hugo/</link>
-      <pubDate>Sun, 16 Aug 2020 00:00:00 +0300</pubDate>
-      
-      <guid>https://blog.gbojinov.xyz/posts/emacs-ox-hugo/</guid>
-      <description>Writing a hugo post in Emacs org mode.</description>
     </item>
     
   </channel>

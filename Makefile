@@ -1,7 +1,7 @@
 .PHONY: build run clean deploy
 
 build:
-	hugo -D --destination docs
+	hugo --destination docs
 	cp static/CNAME docs
 
 run:
