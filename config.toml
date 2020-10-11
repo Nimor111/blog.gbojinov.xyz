@@ -31,7 +31,7 @@ publishDir = "docs"
 
 # Terminal theme config
 [params]
-  contentTypeName = "about"
+  contentTypeName = "posts"
   themeColor = "orange"  
   showMenuItems = 5
   centerTheme = true
@@ -41,7 +41,7 @@ publishDir = "docs"
 
 [params.twitter]
   creator = "Nimor111"
-  site = ""
+  site = "https://twitter.com/Nimor111"
 
 [languages]
   [languages.en]
