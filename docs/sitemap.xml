@@ -23,7 +23,7 @@
   </url>
   
   <url>
-    <loc>https://blog.gbojinov.xyz/posts/test-post/test/</loc>
+    <loc>https://blog.gbojinov.xyz/posts/test-post/</loc>
     <lastmod>2020-09-01T00:00:00+03:00</lastmod>
   </url>
   
@@ -39,6 +39,10 @@
   
   <url>
     <loc>https://blog.gbojinov.xyz/categories/</loc>
+  </url>
+  
+  <url>
+    <loc>https://blog.gbojinov.xyz/categories/posts/</loc>
   </url>
   
 </urlset>

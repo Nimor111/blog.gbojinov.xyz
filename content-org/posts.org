@@ -6,7 +6,7 @@
 # End:
 
 * Posts
-** First post :emacs:
+** TODO First post :emacs:
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: posts/emacs-ox-hugo
 :EXPORT_FILE_NAME: index
@@ -15,10 +15,10 @@
 :END:
 
 This is my first posty
-** Second post :emacs:
+** TODO Second post :emacs:
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: posts/test-post
-:EXPORT_FILE_NAME: test
+:EXPORT_FILE_NAME: index
 :EXPORT_DATE: <2020-09-01 Tue>
 :EXPORT_HUGO_CUSTOM_FRONT_MATTER: :summary Writing a hugo post in Emacs org mode.
 :END:
