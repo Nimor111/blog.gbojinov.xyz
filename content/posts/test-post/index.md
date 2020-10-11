@@ -7,4 +7,4 @@ draft = true
 summary = "Writing a hugo post in Emacs org mode."
 +++
 
-This is a test posty.
+DELETE ME

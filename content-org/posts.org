@@ -23,5 +23,5 @@ This is my first posty
 :EXPORT_HUGO_CUSTOM_FRONT_MATTER: :summary Writing a hugo post in Emacs org mode.
 :END:
 
-This is a test posty.
+DELETE ME
 
