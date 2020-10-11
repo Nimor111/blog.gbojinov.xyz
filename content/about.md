@@ -5,7 +5,15 @@ date = 2020-10-03
 draft = false
 +++
 
-**Hi**
+## Hello and welcome to my blog {#hello-and-welcome-to-my-blog}
 
+My name is Georgi Bojinov, you will see me mostly as Nimor on the internet.
 
-## This is a heading {#this-is-a-heading}
+I am a programmer by degree (computer science) and by passion. I currently work as a Scala developer at Ocado Technology. I also have experience with Python and Node.js, and a bit of Golang. I enjoy functional programming immensely.
+
+I like exploring new languages and technologies, but at the end of the day getting things done is my top priority. I very much enjoy making software that other people will use and benefit from. I'm making this blog/website as a way to learn through writing and explaining different things that I learn.
+Other interests of mine include gaming, playing the guitar, and trying very hard to procrastinate learning Finnish. So all kinds of content related to that can be expected.
+
+Hope you enjoy your stay.
+
+P.S. All the content in this website is written with org-mode, which is an amazing format and organizational system. I use it for a lot of organizational things in my life.
