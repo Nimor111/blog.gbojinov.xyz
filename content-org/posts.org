@@ -1,10 +1,6 @@
 #+hugo_base_dir: ../
 #+hugo_section: ./
 
-# Local Variables:
-# eval: (org-hugo-auto-export-mode)
-# End:
-
 * Posts
 ** TODO Peering into Scala optics with Monocle :scala:optics:fp:
 :PROPERTIES:
@@ -181,3 +177,9 @@ beerName.modify(Beer(Name("Staropramen")))(n => Name(n.value + "!")))
 :END:
 
 This is my first posty
+
+* Local Variables
+Export to org hugo on save
+# Local Variables:
+# eval: (org-hugo-auto-export-mode)
+# End:
