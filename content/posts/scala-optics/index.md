@@ -3,7 +3,7 @@ title = "Peering into Scala optics with Monocle"
 author = ["gbojinov"]
 date = 2020-10-21T00:00:00+03:00
 tags = ["scala", "optics", "fp"]
-draft = true
+draft = false
 summary = "An example of optics in Scala using the Monocle library."
 +++
 
@@ -123,7 +123,7 @@ There are several types of optics.
 
 ## Types of optics {#types-of-optics}
 
-I will present four main types of optics: first with a little theory (the type definition and operations it supports), and then with an example with our data.
+I will present four main types of optics: first with a little theory (the type definition and operations it supports), and then with an example with our data using the Monocle library.
 
 
 ### Lens {#lens}
@@ -185,6 +185,26 @@ beerName.modify(Beer(Name("Staropramen")))(n => Name(n.value + "!")))
 
 
 #### In Practice {#in-practice}
+
+The Monocle library provides convenient apply methods for creating a Lens by providing a get and set function. It also provides macros such as `GenLens` that avoid a lot of the boilerplate, but I'm not going to touch on them in this post.
+
+```scala
+import monocle.Lens
+
+val barFridges = Lens[Bar, List[Fridge]](_.fridge)(newFridges => bar => bar.copy(fridges = newFridges))
+
+val fridgeBeers = Lens[Fridge, List[Beer]](_.beers)(newBeers => fridge => fridge.copy(beers = newBeers))
+
+// We'll get to the options soon
+val beerStock = Lens[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = newStock))
+
+val beerName = Lens[Beer, Name](_.name)(newName => beer => beer.copy(name = newName))
+
+// Some examples
+barFridges.get(bar)
+fridgeBeers.set(fridge, List(beer1, beer2))
+beerStock.modify(beer)(s => Stock(s.value + 5))
+```
 
 
 ### Prism {#prism}

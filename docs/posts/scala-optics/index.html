@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  
+    <title>Peering into Scala optics with Monocle :: Nimor&#39;s blog</title>
+  
+  <meta http-equiv="content-type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="An example of optics in Scala using the Monocle library." />
+<meta name="keywords" content="" />
+<meta name="robots" content="noodp" />
+<link rel="canonical" href="https://blog.gbojinov.xyz/posts/scala-optics/" />
+
+
+
+
+<link rel="stylesheet" href="https://blog.gbojinov.xyz/assets/style.css">
+
+
+
+
+
+
+<link rel="apple-touch-icon" href="https://blog.gbojinov.xyz/img/apple-touch-icon-192x192.png">
+
+  <link rel="shortcut icon" href="https://blog.gbojinov.xyz/img/favicon/orange.png">
+
+
+
+<meta name="twitter:card" content="summary" />
+
+  
+    <meta name="twitter:site" content="https://twitter.com/Nimor111" />
+  
+    <meta name="twitter:creator" content="[gbojinov]" />
+
+
+
+<meta property="og:locale" content="en" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Peering into Scala optics with Monocle">
+<meta property="og:description" content="An example of optics in Scala using the Monocle library." />
+<meta property="og:url" content="https://blog.gbojinov.xyz/posts/scala-optics/" />
+<meta property="og:site_name" content="Nimor&#39;s blog" />
+
+  
+    <meta property="og:image" content="https://blog.gbojinov.xyz/img/favicon/orange.png">
+  
+
+<meta property="og:image:width" content="2048">
+<meta property="og:image:height" content="1024">
+
+
+  <meta property="article:published_time" content="2020-10-21 00:00:00 &#43;0300 EEST" />
+
+
+
+
+
+
+
+
+
+
+
+</head>
+<body class="orange">
+
+
+<div class="container center headings--one-size">
+
+  <header class="header">
+  <div class="header__inner">
+    <div class="header__logo">
+      <a href="/">
+  <div class="logo">
+    Nimor&#39;s blog
+  </div>
+</a>
+
+    </div>
+    <div class="menu-trigger">menu</div>
+  </div>
+  
+    <nav class="menu">
+  <ul class="menu__inner menu__inner--desktop">
+    
+      
+        
+          <li><a href="/about">About</a></li>
+        
+      
+        
+          <li><a href="https://github.com/Nimor111">My Github</a></li>
+        
+      
+        
+          <li><a href="/posts">Posts</a></li>
+        
+      
+      
+    
+
+    
+  </ul>
+
+  <ul class="menu__inner menu__inner--mobile">
+    
+      
+        <li><a href="/about">About</a></li>
+      
+    
+      
+        <li><a href="https://github.com/Nimor111">My Github</a></li>
+      
+    
+      
+        <li><a href="/posts">Posts</a></li>
+      
+    
+    
+  </ul>
+</nav>
+
+  
+</header>
+
+
+  <div class="content">
+    
+<div class="post">
+  <h1 class="post-title">
+    <a href="https://blog.gbojinov.xyz/posts/scala-optics/">Peering into Scala optics with Monocle</a></h1>
+  <div class="post-meta">
+    
+      <span class="post-date">
+        2020-10-21 
+      </span>
+    
+    
+    <span class="post-author">:: [gbojinov]</span>
+    
+  </div>
+
+  
+  <span class="post-tags">
+    
+    #<a href="https://blog.gbojinov.xyz/tags/scala/">scala</a>&nbsp;
+    
+    #<a href="https://blog.gbojinov.xyz/tags/optics/">optics</a>&nbsp;
+    
+    #<a href="https://blog.gbojinov.xyz/tags/fp/">fp</a>&nbsp;
+    
+  </span>
+  
+
+  
+
+  
+
+  <div class="post-content"><div>
+        <h2 id="introduction">Introduction<a href="#introduction" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Salutations. Today i&rsquo;m going to do an overview of one of my favourite functional programming concepts - optics. Most articles on this topic focus on Haskell so I&rsquo;m going to try to present the topic using Scala and the <a href="https://github.com/optics-dev/monocle">Monocle</a> library.</p>
+<h2 id="optics-the-what-and-the-why">Optics - The What and The Why<a href="#optics-the-what-and-the-why" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>Let&rsquo;s start with an example.
+The examples of this post are taken from this fantastic page about optics: <a href="https://impurepics.com/posts/2020-03-22-optics.html">Link</a></p>
+<h3 id="initial-steps">Initial steps<a href="#initial-steps" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>Let&rsquo;s define some types.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">object</span> <span style="color:#a6e22e">Types</span> <span style="color:#f92672">{</span>
+  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Name</span><span style="color:#f92672">(</span>value<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">extends</span> <span style="color:#a6e22e">AnyVal</span>
+  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Stock</span><span style="color:#f92672">(</span>value<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Int</span><span style="color:#f92672">)</span> <span style="color:#66d9ef">extends</span> <span style="color:#a6e22e">AnyVal</span>
+
+  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Bar</span><span style="color:#f92672">(</span>fridges<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Fridge</span><span style="color:#f92672">])</span>
+  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Fridge</span><span style="color:#f92672">(</span>beers<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Beer</span><span style="color:#f92672">])</span>
+  <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Beer</span><span style="color:#f92672">(</span>name<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Option</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Name</span><span style="color:#f92672">],</span> stock<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Option</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Stock</span><span style="color:#f92672">])</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>And here&rsquo;s what a <code>Bar</code> would look like sent over an API in a format like JSON:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
+  <span style="color:#f92672">&#34;fridges&#34;</span>: [{
+    <span style="color:#f92672">&#34;beers&#34;</span>: [
+      {
+        <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Starobrno&#34;</span>,
+        <span style="color:#f92672">&#34;stock&#34;</span>: <span style="color:#ae81ff">5</span>
+      },
+      {
+        <span style="color:#f92672">&#34;stock&#34;</span>: <span style="color:#ae81ff">2</span>
+      }
+    ]
+  },
+  {
+    <span style="color:#f92672">&#34;beers&#34;</span>: [
+      {
+        <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Starobrno&#34;</span>,
+      },
+      {
+        <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Staropramen&#34;</span>,
+        <span style="color:#f92672">&#34;stock&#34;</span>: <span style="color:#ae81ff">6</span>
+      }
+    ]
+  }]
+}
+</code></pre></div><p>Objects in the real world can look twice as nested as this, but it&rsquo;s a good place to start.</p>
+<h3 id="let-s-play-around-with-our-data">Let&rsquo;s play around with our data<a href="#let-s-play-around-with-our-data" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>So we&rsquo;re imagining we&rsquo;re a bar and we store information about the beers we&rsquo;re selling and how many we have in stock. Of course, we keep them in a fridge, and our bar has multiple fridges. Not every beer has a name or a stock. (Let&rsquo;s hope the bar won&rsquo;t sell those without a name!)</p>
+<p>Let&rsquo;s walk through a couple of use cases of what we would like to do with our beers.</p>
+<ul>
+<li>
+<p>We receive a shipment of beers for our first fridge and we would like to bump all of our stock by a certain amount. How would we do that?</p>
+<p>Here&rsquo;s a way with regular (functional and immutable) Scala:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">val</span> beer1 <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Beer</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Some</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Name</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Starobrno&#34;</span><span style="color:#f92672">)),</span> <span style="color:#a6e22e">Some</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Stock</span><span style="color:#f92672">(</span><span style="color:#ae81ff">5</span><span style="color:#f92672">)))</span>
+<span style="color:#66d9ef">val</span> beer2 <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Beer</span><span style="color:#f92672">(</span><span style="color:#a6e22e">None</span><span style="color:#f92672">,</span> <span style="color:#a6e22e">Some</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Stock</span><span style="color:#f92672">(</span><span style="color:#ae81ff">3</span><span style="color:#f92672">)))</span>
+<span style="color:#66d9ef">val</span> bar <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Bar</span><span style="color:#f92672">(</span><span style="color:#a6e22e">List</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Fridge</span><span style="color:#f92672">(</span><span style="color:#a6e22e">List</span><span style="color:#f92672">(</span>beer1<span style="color:#f92672">,</span> beer2<span style="color:#f92672">))))</span>
+
+<span style="color:#75715e">// Woo, a shipment comes!
+</span><span style="color:#75715e"></span>
+<span style="color:#66d9ef">val</span> updatedBar <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Bar</span><span style="color:#f92672">(</span>
+  bar<span style="color:#f92672">.</span>fridges<span style="color:#f92672">.</span>map<span style="color:#f92672">(</span>fridge <span style="color:#66d9ef">=&gt;</span>
+    <span style="color:#a6e22e">Fridge</span><span style="color:#f92672">(</span>fridge<span style="color:#f92672">.</span>beers<span style="color:#f92672">.</span>map<span style="color:#f92672">(</span>beer <span style="color:#66d9ef">=&gt;</span>
+      <span style="color:#a6e22e">Beer</span><span style="color:#f92672">(</span>beer<span style="color:#f92672">.</span>name<span style="color:#f92672">,</span> beer<span style="color:#f92672">.</span>stock<span style="color:#f92672">.</span>map<span style="color:#f92672">(</span>s <span style="color:#66d9ef">=&gt;</span>
+        <span style="color:#a6e22e">Stock</span><span style="color:#f92672">(</span>s<span style="color:#f92672">.</span>value <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">)))))))</span>
+
+<span style="color:#75715e">// Bar(List(Fridge(List(Beer(Some(Name(Starobrno)),Some(Stock(6))), Beer(None,Some(Stock(4)))))))
+</span></code></pre></div></li>
+</ul>
+<p>This works, but is less than ideal.</p>
+<ul>
+<li>
+<p>We would like to figure out how much stock we have in the first fridge of our bar.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">bar<span style="color:#f92672">.</span>fridges<span style="color:#f92672">.</span>foldLeft<span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">)((</span>total<span style="color:#f92672">,</span> fridge<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span>
+  total <span style="color:#f92672">+</span> fridge<span style="color:#f92672">.</span>beers<span style="color:#f92672">.</span>foldLeft<span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">)((</span>fridgeTotal<span style="color:#f92672">,</span> beer<span style="color:#f92672">)</span> <span style="color:#66d9ef">=&gt;</span>
+    fridgeTotal <span style="color:#f92672">+</span> beer<span style="color:#f92672">.</span>stock<span style="color:#f92672">.</span>getOrElse<span style="color:#f92672">(</span><span style="color:#a6e22e">Stock</span><span style="color:#f92672">(</span><span style="color:#ae81ff">0</span><span style="color:#f92672">)).</span>value<span style="color:#f92672">))</span>
+
+<span style="color:#75715e">// 8
+</span></code></pre></div></li>
+</ul>
+<p>Again, less than ideal.</p>
+<p>So, what can we do to make this code more concise and less convoluted?</p>
+<p>Enter optics.</p>
+<h3 id="why-do-we-care-about-optics">Why do we care about optics?<a href="#why-do-we-care-about-optics" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<p>To be able to easily traverse deeply nested data structures (which is often the case with API responses) with minimal code and without lots of nested maps, folds, conditionals, etc. Optics make use of the compositional and pure nature of FP very well.</p>
+<p>Optics are an abstraction characterized by several operations, which revolve around getting a particular field, setting it, or modifying it.</p>
+<p>There are several types of optics.</p>
+<p><code>NB</code> Optics are called so because you &ldquo;focus&rdquo; into concrete elements of nested data structures with them, like the foci of a lens.</p>
+<h2 id="types-of-optics">Types of optics<a href="#types-of-optics" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<p>I will present four main types of optics: first with a little theory (the type definition and operations it supports), and then with an example with our data using the Monocle library.</p>
+<h3 id="lens">Lens<a href="#lens" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<h4 id="theory">Theory<a href="#theory" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
+<p>Lenses are used for getting and setting fields of deeply nested product types when you know the value is there.</p>
+<p>The operations for lenses are:</p>
+<ol>
+<li><code>get</code> (to get the value of the focused field),</li>
+<li><code>set</code> (to change the value of the focused field)</li>
+<li><code>modify</code> (to get an element and apply a function to it)</li>
+</ol>
+<p>The SimpleLens type describes a structure <code>S</code> that contains a focused field of type <code>A</code></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SimpleLens</span><span style="color:#f92672">[</span><span style="color:#66d9ef">S</span>, <span style="color:#66d9ef">A</span><span style="color:#f92672">]</span> <span style="color:#f92672">{</span>
+  <span style="color:#66d9ef">def</span> get<span style="color:#f92672">(</span>s<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">S</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">A</span>
+  <span style="color:#66d9ef">def</span> set<span style="color:#f92672">(</span>s<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">S</span><span style="color:#f92672">,</span> b<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">A</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">S</span>
+  <span style="color:#66d9ef">def</span> modify<span style="color:#f92672">(</span>s<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">S</span><span style="color:#f92672">)(</span>f<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">A</span> <span style="color:#f92672">=&gt;</span> A<span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">S</span> <span style="color:#f92672">=</span> set<span style="color:#f92672">(</span>s<span style="color:#f92672">,</span> f<span style="color:#f92672">(</span>get<span style="color:#f92672">(</span>s<span style="color:#f92672">)))</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>The type is actually a bit more complicated</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Lens</span><span style="color:#f92672">[</span><span style="color:#66d9ef">S</span>, <span style="color:#66d9ef">T</span>, <span style="color:#66d9ef">A</span>, <span style="color:#66d9ef">B</span><span style="color:#f92672">]</span>
+
+<span style="color:#75715e">// so SimpleLens is
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">type</span> <span style="color:#66d9ef">SimpleLens</span><span style="color:#f92672">[</span><span style="color:#66d9ef">S</span>, <span style="color:#66d9ef">A</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Lens</span><span style="color:#f92672">[</span><span style="color:#66d9ef">S</span>, <span style="color:#66d9ef">S</span>, <span style="color:#66d9ef">A</span>, <span style="color:#66d9ef">A</span><span style="color:#f92672">]</span>
+</code></pre></div><ul>
+<li>S - input structure type</li>
+<li>T - output structure type, since setting the field can change the type (changing an int field to string for example)</li>
+<li>A - input field type</li>
+<li>B - output field type - again, might change</li>
+</ul>
+<p>The <code>SimpleLens</code> is a convenient alias for when the input and output types are the same.</p>
+<p>We create specific lenses for the fields we want to work with, e.g. we &ldquo;focus&rdquo; on the field.</p>
+<p>To create a lens for the name field of the <code>Beer</code> type (let&rsquo;s ignore the <code>Option</code> there for now, we&rsquo;ll get to that later), we need a way to get a field from a case class and a way to set it. The minimal implementation for a Lens is to define <code>get</code> and <code>set</code> since <code>modify</code> can be expressed through them.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">case</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Beer</span><span style="color:#f92672">(</span>name<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Name</span><span style="color:#f92672">)</span>
+
+<span style="color:#75715e">// We focus on the field with type Name of the Beer class
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">val</span> beerName <span style="color:#66d9ef">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">SimpleLens</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Beer</span>, <span style="color:#66d9ef">Name</span><span style="color:#f92672">]</span> <span style="color:#f92672">{</span>
+  <span style="color:#66d9ef">def</span> get<span style="color:#f92672">(</span>s<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Beer</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Name</span> <span style="color:#f92672">=</span> s<span style="color:#f92672">.</span>name
+  <span style="color:#66d9ef">def</span> set<span style="color:#f92672">(</span>s<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Beer</span><span style="color:#f92672">,</span> newName<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Name</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Beer</span> <span style="color:#f92672">=</span> s<span style="color:#f92672">.</span>copy<span style="color:#f92672">(</span>name <span style="color:#66d9ef">=</span> newName<span style="color:#f92672">)</span>
+<span style="color:#f92672">}</span>
+
+beerName<span style="color:#f92672">.</span>get<span style="color:#f92672">(</span><span style="color:#a6e22e">Beer</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Name</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Staropramen&#34;</span><span style="color:#f92672">)))</span> <span style="color:#75715e">// Name(Staropramen)
+</span><span style="color:#75715e"></span>beerName<span style="color:#f92672">.</span>set<span style="color:#f92672">(</span><span style="color:#a6e22e">Beer</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Name</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Staropramen&#34;</span><span style="color:#f92672">)),</span> <span style="color:#e6db74">&#34;Starobrno&#34;</span><span style="color:#f92672">)</span>
+beerName<span style="color:#f92672">.</span>modify<span style="color:#f92672">(</span><span style="color:#a6e22e">Beer</span><span style="color:#f92672">(</span><span style="color:#a6e22e">Name</span><span style="color:#f92672">(</span><span style="color:#e6db74">&#34;Staropramen&#34;</span><span style="color:#f92672">)))(</span>n <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Name</span><span style="color:#f92672">(</span>n<span style="color:#f92672">.</span>value <span style="color:#f92672">+</span> <span style="color:#e6db74">&#34;!&#34;</span><span style="color:#f92672">)))</span>
+</code></pre></div><h4 id="in-practice">In Practice<a href="#in-practice" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
+<p>The Monocle library provides convenient apply methods for creating a Lens by providing a get and set function. It also provides macros such as <code>GenLens</code> that avoid a lot of the boilerplate, but I&rsquo;m not going to touch on them in this post.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">import</span> monocle.Lens
+
+<span style="color:#66d9ef">val</span> barFridges <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Lens</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Bar</span>, <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Fridge</span><span style="color:#f92672">]](</span><span style="color:#66d9ef">_</span><span style="color:#f92672">.</span>fridge<span style="color:#f92672">)(</span>newFridges <span style="color:#66d9ef">=&gt;</span> bar <span style="color:#66d9ef">=&gt;</span> bar<span style="color:#f92672">.</span>copy<span style="color:#f92672">(</span>fridges <span style="color:#66d9ef">=</span> newFridges<span style="color:#f92672">))</span>
+
+<span style="color:#66d9ef">val</span> fridgeBeers <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Lens</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Fridge</span>, <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Beer</span><span style="color:#f92672">]](</span><span style="color:#66d9ef">_</span><span style="color:#f92672">.</span>beers<span style="color:#f92672">)(</span>newBeers <span style="color:#66d9ef">=&gt;</span> fridge <span style="color:#66d9ef">=&gt;</span> fridge<span style="color:#f92672">.</span>copy<span style="color:#f92672">(</span>beers <span style="color:#66d9ef">=</span> newBeers<span style="color:#f92672">))</span>
+
+<span style="color:#75715e">// We&#39;ll get to the options soon
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">val</span> beerStock <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Lens</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Beer</span>, <span style="color:#66d9ef">Stock</span><span style="color:#f92672">](</span><span style="color:#66d9ef">_</span><span style="color:#f92672">.</span>stock<span style="color:#f92672">)(</span>newStock <span style="color:#66d9ef">=&gt;</span> beer <span style="color:#66d9ef">=&gt;</span> beer<span style="color:#f92672">.</span>copy<span style="color:#f92672">(</span>stock <span style="color:#66d9ef">=</span> newStock<span style="color:#f92672">))</span>
+
+<span style="color:#66d9ef">val</span> beerName <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Lens</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Beer</span>, <span style="color:#66d9ef">Name</span><span style="color:#f92672">](</span><span style="color:#66d9ef">_</span><span style="color:#f92672">.</span>name<span style="color:#f92672">)(</span>newName <span style="color:#66d9ef">=&gt;</span> beer <span style="color:#66d9ef">=&gt;</span> beer<span style="color:#f92672">.</span>copy<span style="color:#f92672">(</span>name <span style="color:#66d9ef">=</span> newName<span style="color:#f92672">))</span>
+
+<span style="color:#75715e">// Some examples
+</span><span style="color:#75715e"></span>barFridges<span style="color:#f92672">.</span>get<span style="color:#f92672">(</span>bar<span style="color:#f92672">)</span>
+fridgeBeers<span style="color:#f92672">.</span>set<span style="color:#f92672">(</span>fridge<span style="color:#f92672">,</span> <span style="color:#a6e22e">List</span><span style="color:#f92672">(</span>beer1<span style="color:#f92672">,</span> beer2<span style="color:#f92672">))</span>
+beerStock<span style="color:#f92672">.</span>modify<span style="color:#f92672">(</span>beer<span style="color:#f92672">)(</span>s <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Stock</span><span style="color:#f92672">(</span>s<span style="color:#f92672">.</span>value <span style="color:#f92672">+</span> <span style="color:#ae81ff">5</span><span style="color:#f92672">))</span>
+</code></pre></div><h3 id="prism">Prism<a href="#prism" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<h4 id="theory">Theory<a href="#theory" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
+<h4 id="in-practice">In Practice<a href="#in-practice" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
+<h3 id="traversal">Traversal<a href="#traversal" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<h4 id="theory">Theory<a href="#theory" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
+<h4 id="in-practice">In Practice<a href="#in-practice" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
+<h3 id="composability--there-was-a-table-about-this">Composability ( there was a table about this )<a href="#composability--there-was-a-table-about-this" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<h2 id="optics-and-scala-welcome-to-monocle">Optics and Scala - Welcome to Monocle<a href="#optics-and-scala-welcome-to-monocle" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+<h3 id="example-with-beers--can-change-this-to-accomodate-storepick-domain-me-thinks">Example with Beers (can change this to accomodate StorePick domain me thinks)<a href="#example-with-beers--can-change-this-to-accomodate-storepick-domain-me-thinks" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<h3 id="optics-without-operators">Optics without operators<a href="#optics-without-operators" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<h3 id="optics-with-operators">Optics with operators<a href="#optics-with-operators" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
+<h2 id="summary-and-resources">Summary and Resources<a href="#summary-and-resources" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
+
+      </div></div>
+
+  
+  
+  
+
+  <script src="https://utteranc.es/client.js"
+        repo="Nimor111/blog.gbojinov.xyz"
+        issue-term="pathname"
+        theme="github-dark"
+        crossorigin="anonymous"
+        async>
+</script>
+
+</div>
+
+  </div>
+
+  
+    <footer class="footer">
+  <div class="footer__inner">
+    
+      <div class="copyright">
+        <span>© 2020 Powered by <a href="http://gohugo.io">Hugo</a></span>
+    
+        <span>:: Theme made by <a href="https://twitter.com/panr">panr</a></span>
+      </div>
+  </div>
+</footer>
+
+<script src="https://blog.gbojinov.xyz/assets/main.js"></script>
+<script src="https://blog.gbojinov.xyz/assets/prism.js"></script>
+
+
+
+
+
+
+
+  
+</div>
+
+</body>
+</html>

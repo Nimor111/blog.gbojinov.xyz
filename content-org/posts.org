@@ -2,7 +2,7 @@
 #+hugo_section: ./
 
 * Posts
-** TODO Peering into Scala optics with Monocle :scala:optics:fp:
+** Peering into Scala optics with Monocle :scala:optics:fp:
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: posts/scala-optics
 :EXPORT_FILE_NAME: index
@@ -104,7 +104,7 @@ There are several types of optics.
 
 ~NB~ Optics are called so because you "focus" into concrete elements of nested data structures with them, like the foci of a lens.
 *** Types of optics
-I will present four main types of optics: first with a little theory (the type definition and operations it supports), and then with an example with our data.
+I will present four main types of optics: first with a little theory (the type definition and operations it supports), and then with an example with our data using the Monocle library.
 **** Lens
 ***** Theory
 Lenses are used for getting and setting fields of deeply nested product types when you know the value is there.
@@ -156,6 +156,25 @@ beerName.set(Beer(Name("Staropramen")), "Starobrno")
 beerName.modify(Beer(Name("Staropramen")))(n => Name(n.value + "!")))
 #+end_src
 ***** In Practice
+The Monocle library provides convenient apply methods for creating a Lens by providing a get and set function. It also provides macros such as ~GenLens~ that avoid a lot of the boilerplate, but I'm not going to touch on them in this post.
+
+#+begin_src scala
+import monocle.Lens
+
+val barFridges = Lens[Bar, List[Fridge]](_.fridge)(newFridges => bar => bar.copy(fridges = newFridges))
+
+val fridgeBeers = Lens[Fridge, List[Beer]](_.beers)(newBeers => fridge => fridge.copy(beers = newBeers))
+
+// We'll get to the options soon
+val beerStock = Lens[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = newStock))
+
+val beerName = Lens[Beer, Name](_.name)(newName => beer => beer.copy(name = newName))
+
+// Some examples
+barFridges.get(bar)
+fridgeBeers.set(fridge, List(beer1, beer2))
+beerStock.modify(beer)(s => Stock(s.value + 5))
+#+end_src
 **** Prism
 ***** Theory
 ***** In Practice
