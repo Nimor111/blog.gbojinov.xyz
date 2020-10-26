@@ -17,6 +17,11 @@ To build the site:
 make build
 #+end_src
 
+To run locally:
+#+begin_src sh
+make run
+#+end_src
+
 To build and push to git
 #+begin_src sh
 make deploy
