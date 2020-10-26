@@ -2,7 +2,7 @@
 #+hugo_section: ./
 
 * Posts
-** Peering into Scala optics with Monocle :scala:optics:fp:
+** TODO Peering into Scala optics with Monocle :scala:optics:fp:
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: posts/scala-optics
 :EXPORT_FILE_NAME: index
