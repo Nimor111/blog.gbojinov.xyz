@@ -73,35 +73,38 @@ Let's walk through a couple of use cases of what we would like to do with our be
 
 -   We receive a shipment of beers for our first fridge and we would like to bump all of our stock by a certain amount. How would we do that?
 
-    Here's a way with regular (functional and immutable) Scala:
+Here's a way with regular (functional and immutable) Scala:
 
-    ```scala
-    val beer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
-    val beer2 = Beer(None, Some(Stock(3)))
-    val bar = Bar(List(Fridge(List(beer1, beer2))))
+```scala
+val beer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
+val beer2 = Beer(None, Some(Stock(3)))
+val bar = Bar(List(Fridge(List(beer1, beer2))))
 
-    // Woo, a shipment comes!
+// Woo, a shipment comes!
 
-    val updatedBar = Bar(
-      bar.fridges.map(fridge =>
-        Fridge(fridge.beers.map(beer =>
-          Beer(beer.name, beer.stock.map(s =>
-            Stock(s.value + 1)))))))
+val updatedBar = Bar(
+  bar.fridges.map(fridge =>
+    Fridge(fridge.beers.map(beer =>
+      Beer(beer.name, beer.stock.map(s =>
+        Stock(s.value + 1)))))))
 
-    // Bar(List(Fridge(List(Beer(Some(Name(Starobrno)),Some(Stock(6))), Beer(None,Some(Stock(4)))))))
-    ```
+println(updatedBar)
+// Bar(List(Fridge(List(Beer(Some(Name(Starobrno)),Some(Stock(6))), Beer(None,Some(Stock(4)))))))
+```
 
 This works, but is less than ideal.
 
 -   We would like to figure out how much stock we have in the first fridge of our bar.
 
-    ```scala
-    bar.fridges.foldLeft(0)((total, fridge) =>
-      total + fridge.beers.foldLeft(0)((fridgeTotal, beer) =>
-        fridgeTotal + beer.stock.getOrElse(Stock(0)).value))
+<!--listend-->
 
-    // 8
-    ```
+```scala
+bar.fridges.foldLeft(0)((total, fridge) =>
+  total + fridge.beers.foldLeft(0)((fridgeTotal, beer) =>
+    fridgeTotal + beer.stock.getOrElse(Stock(0)).value))
+
+// 8
+```
 
 Again, less than ideal.
 
@@ -170,6 +173,7 @@ We create specific lenses for the fields we want to work with, e.g. we "focus" o
 To create a lens for the name field of the `Beer` type (let's ignore the `Option` there for now, we'll get to that later), we need a way to get a field from a case class and a way to set it. The minimal implementation for a Lens is to define `get` and `set` since `modify` can be expressed through them.
 
 ```scala
+case class Name(value: String)
 case class Beer(name: Name)
 
 // We focus on the field with type Name of the Beer class
@@ -179,8 +183,8 @@ val beerName = new SimpleLens[Beer, Name] {
 }
 
 beerName.get(Beer(Name("Staropramen"))) // Name(Staropramen)
-beerName.set(Beer(Name("Staropramen")), "Starobrno")
-beerName.modify(Beer(Name("Staropramen")))(n => Name(n.value + "!")))
+beerName.set(Beer(Name("Staropramen")), Name("Starobrno"))
+beerName.modify(Beer(Name("Staropramen")))(n => Name(n.value + "!"))
 ```
 
 
