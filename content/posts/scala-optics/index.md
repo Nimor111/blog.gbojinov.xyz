@@ -3,7 +3,7 @@ title = "Peering into Scala optics with Monocle"
 author = ["gbojinov"]
 date = 2020-10-21T00:00:00+03:00
 tags = ["scala", "optics", "fp"]
-draft = false
+draft = true
 summary = "An example of optics in Scala using the Monocle library."
 +++
 
