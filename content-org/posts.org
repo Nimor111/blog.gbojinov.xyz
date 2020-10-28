@@ -2,7 +2,7 @@
 #+hugo_section: ./
 
 * Posts
-** TODO Peering into Scala optics with Monocle :scala:optics:fp:
+** Peering into Scala optics with Monocle :scala:optics:fp:
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: posts/scala-optics
 :EXPORT_FILE_NAME: index
@@ -112,10 +112,10 @@ I will present four main types of optics: first with a little theory (the type d
 ***** Theory
 Lenses are used for getting and setting fields of deeply nested product types when you know the value is there.
 
-The operations for lenses are:
+A lens is defined by:
 1. ~get~ (to get the value of the focused field),
 2. ~set~ (to change the value of the focused field)
-3. ~modify~ (to get an element and apply a function to it)
+3. ~modify~ (to get an element and apply a function to  it) - this can be expressed through ~get~ and ~set~ so is not required
 
 The SimpleLens type describes a structure ~S~ that contains a focused field of type ~A~
 #+begin_src scala :results output
@@ -182,12 +182,165 @@ beerStock.modify(beer)(s => Stock(s.value + 5))
 #+end_src
 **** Prism
 ***** Theory
+Prisms are used for getting and setting fields of deeply nested product types when the value might not be there. More generally, a prism captures a certain constructor of a sum type (since Option is simply a sum type with two constructors). 
+
+A nice way to think about prisms is that they define an is-a relationship and lenses define a has-a relationship.
+
+A prism is defined by:
+1. ~match~ (a matcher function that returns an ~Either~ - Left if the constructor is matched, Right if it is)
+2. ~construct~ (a function to wrap a value into the constructor)
+
+These operations are used to define some more convenient ones:
+1. ~preview~ (to get the value of the focused field, or None if it's not there) - this is analoguous to get, but returns an ~Option~
+2. ~review~ (to wrap a value in the constructor)
+
+The SimplePrism type describes a structure ~S~ that contains a focused field of type ~A~ that might not be there
+#+begin_src scala :results output
+abstract class SimplePrism[S, A] {
+  def match(a: A): Either[S, A]
+  def construct(a: A): S
+
+  // the double match
+  def preview(a: A): Option[A] = match this.match(a) {
+    case Right(a) => Some(a)
+    case Left(_) => None
+  }
+
+  def review(a: A): Option[A] = this.construct(a)
+}
+#+end_src
+
+The type is actually a bit more complicated
+#+begin_src scala
+abstract class Prism[S, T, A, B]
+
+// so SimplePrism is
+type SimplePrism[S, A] = Prism[S, S, A, A]
+#+end_src
+
+- S - input structure type
+- T - output structure type, since setting the field can change the type (changing an int field to string for example)
+- A - input field type, a variant of a sum type
+- B - output field type - again, might change, a variant of a sum type
+
+The ~SimplePrism~ is a convenient alias for when the input and output types are the same.
+
+Let's create a prism for the Some constructor of the Option type, since we have several optional fields in our data.
+#+begin_src scala :results output
+// puns
+val somePrism = new SimplePrism[Option[A], A] {
+  def match(a: A): Either[Option[A], A] = a match {
+    // the value is there
+    case Some(y) => Right(y)
+    // the value is missing
+    case None => Left(None)
+  }
+
+  def construct(a: A): Option[A] = Some(a)
+}
+
+somePrism.preview(Some(5)) // Some(5))))
+somePrism.review(5) // Some(5)
+#+end_src
+
+This isn't the most sensible example in of itself, but when we get to composing optics it'll be very convenient. In fact, it's so convenient that there is another type of optic, ~Optional~, which composes a Lens and this prism to create Lenses for optional fields.
+
 ***** In Practice
+Since we will be using mainly the simple versions of the optics in our explorations (without changing the output types), we can use ~Maybe~ in our matching function instead of ~Either~, which is there to keep the context of our switched ~T~ type.
+Luckily, Monocle provides an apply method to supply a matching function with ~Maybe~ as the return type. What's more, it provides a ~Prism.partial~ constructor, which allows a partial function to be passed, making the code even more concise. Let's rewrite our prism for ~Some~ using Monocle.
+
+#+begin_src scala
+import monocle.Prism
+
+val prismOption[A]: Prism[Option[A], A] = Prism.partial[Option[A], A]{case Some(v) => v}(Some(_))
+#+end_src
+
+Neat, right?
+
+Preview is called ~getOption~, and review is ~reverseGet~.
+#+begin_src scala :results output
+prismOption.getOption(Some(Name("Starobrno"))) // Some(Name(Starobrno))
+
+prismOption.reverseGet(Name("Starobrno")) // Some(Name(Starobrno))
+#+end_src
+
+I promise, it'll make sense in a bit.
 **** Traversal
 ***** Theory
+Traversals are the meat and bread of traversing nested data, because they deal with lists of values. A traversal focuses on 0 or more values of a type, or a field that is a list of values of the same type. So a lens is actually a traversal that focuses on a single value.
+
+A Traversal is basically a wrapper around types that can be traversed. ~traverse~ is like ~map~, but the function that is applied to each element of the structure is effectful. A Traversal allows us to transform values of a field in any way we like.
+
+A traversal is, not surprisingly, defined by the following function:
+1. ~traverse~ (apply an effectful function to each element of a structure)
+
+This operation is used to define very many others, and implementing them will take longer than a reasonably sized blog post, so i'll just show their usage.
+
+#+begin_src scala
+abstract class SimpleTraversal[S, A] {
+  // traverse requires that the effect is an instance of Applicative
+  def traverse[F[_]: Applicative](f: A => F[A])(s: S): F[S]
+}
+#+end_src
+
+As always, the type can be more complicated.
+
+#+begin_src scala
+abstract class Traversal[S, T, A, B]
+
+type SimpleTraversal[S, A] = Traversal[S, S, A, A]
+#+end_src
+
+The type parameter explanation is the same as for the previous optics.
+
+To implement a traversal, we can use the ~Traverse~ type class from cats (not to be confused with the default ~Traversable~ from Scala, though they sure meant us to confuse the two, since that is what ~Traverse~ is called in Haskell) and simply take its ~traverse~ method implementation.
+
+#+begin_src scala
+// List[_] is an instance of ~Traverse~
+val listTraverse[List[A], A] = new SimpleTraversal {
+  def traverse[F[_]: Applicative](f: A => F[A])(s: List[A]): F[List[A]] = s.traverse(f) // assuming an extension method traverse is defined
+}
+#+end_src
 ***** In Practice
-**** Composability ( there was a table about this )
-*** Optics and Scala - Welcome to Monocle
+We'll define traversals for our list of fridges and list of bars. Monocle provides a ~Traversal.fromTraverse~ constructor that does what we did above. It has a ~Traverse~ type class constraint.
+
+#+begin_src scala
+import monocle.Traversal
+
+val fridgeTraversal: Traversal[List[Fridge], Fridge] = Traversal.fromTraverse[List, Fridge]
+val beersTraversal: Traversal[List[Beer], Beer] = Traversal.fromTraverse[List, Beer]
+#+end_src
+
+We can get all beers, which will make more sense when we compose the optics
+
+#+begin_src scala
+val beer1 = Beer(Some(Name("Starobrno")), Some(Stock(4)))
+val beer2 = Beer(None, Some(Stock(3)))
+
+val beers = List(beer1, beer2)
+
+beersTraversal.getAll(beers) // List(beer1, beer2)
+#+end_src
+
+For a more sensible example, we can fold them to calculate all the stock (using a monoid for Stock). I will cheat a bit here and use a compose, which I will cover in the next (culminative) section. Ignore it for now. 
+
+#+begin_src scala
+import monocle.Optional
+import cats.Monoid
+
+val beerStockOptional = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock)))
+
+implicit val stockMonoid: Monoid[Stock] = new Monoid[Stock] {
+  override def empty: Stock = Stock(0)
+  override def combine(x: Stock, y: Stock): Stock = Stock(x.value + y.value)
+}
+
+beersL.composeOptional(beerStockOptional).fold(beers) // Stock(7)
+
+#+end_src
+*** Composability
+There was a table about this
+*** Optics in full
 **** Example with Beers (can change this to accomodate StorePick domain me thinks)
 **** Optics without operators
 **** Optics with operators
