@@ -3,13 +3,15 @@ title = "Peering into Scala optics with Monocle"
 author = ["gbojinov"]
 date = 2020-10-21T00:00:00+03:00
 tags = ["scala", "optics", "fp"]
-draft = true
+draft = false
 summary = "An example of optics in Scala using the Monocle library."
 +++
 
 ## Introduction {#introduction}
 
 Salutations. Today i'm going to do an overview of one of my favourite functional programming concepts - optics. Most articles on this topic focus on Haskell so I'm going to try to present the topic using Scala and the [Monocle](https://github.com/optics-dev/monocle) library.
+
+My assumptions for the reader is that they are familiar with basic functional Scala, the concept of type classes and some of the more popular ones.
 
 
 ## Optics - The What and The Why {#optics-the-what-and-the-why}
@@ -94,7 +96,7 @@ println(updatedBar)
 
 This works, but is less than ideal.
 
--   We would like to figure out how much stock we have in the first fridge of our bar.
+-   We would like to figure out how much stock we have in our bar.
 
 <!--listend-->
 
@@ -121,12 +123,12 @@ Optics are an abstraction characterized by several operations, which revolve aro
 
 There are several types of optics.
 
-`NB` Optics are called so because you "focus" into concrete elements of nested data structures with them, like the foci of a lens.
+`NB` Optics are called so because you "focus" into concrete elements of nested data structures with them, like the foci of an optical device.
 
 
 ## Types of optics {#types-of-optics}
 
-I will present four main types of optics: first with a little theory (the type definition and operations it supports), and then with an example with our data using the Monocle library.
+I will present three main types of optics: first with a little theory (the type definition and operations it supports), and then with an example with our data using the Monocle library.
 
 
 ### Lens {#lens}
@@ -392,19 +394,120 @@ beersL.composeOptional(beerStockOptional).fold(beers) // Stock(7)
 
 ## Composability {#composability}
 
-There was a table about this
+Now that we've looked at some of the main types of optics, it's time to see how they can be used with real data (or in our case, the data we defined at the beginning of the post). The power of optics lies in their ability to compose. By composing them we can perform the nested traversal that makes optics so useful.
+
+Skipping over the theory, as that is a post on its own, the main thing to note is that, for the optics we presented, every one of them, composed with a Traversal, yields a Traversal. This means that a composed optic will most often be a Traversal and will begin with a Traversal of some kind, either for a specific field (since a Lens is a Traversal), followed by a list of something. Sound familiar?
+
+I'm going to go straight to the Monocle examples for this.
 
 
 ## Optics in full {#optics-in-full}
 
 
-### Example with Beers (can change this to accomodate StorePick domain me thinks) {#example-with-beers--can-change-this-to-accomodate-storepick-domain-me-thinks}
+### Example with Beers {#example-with-beers}
 
 
-### Optics without operators {#optics-without-operators}
+#### Optics for a bar {#optics-for-a-bar}
+
+So we want to focus on the `Stock` of the beers in our bar, starting from the top. Let's see how that goes.
+
+First we define the separate optics. Yet again, i'm not using the macros provided by Monocle.
+
+Imports
+
+```scala
+import monocle.{Lens, Traversal, Optional}
+```
+
+A Lens for the "fridges" field
+
+```scala
+val barFridges = Lens[Bar, List[Fridge]](_.fridges)(newFridges => bar => bar.copy(fridges = newFridges))
+```
+
+Now we need to Traverse the fridges
+
+```scala
+val fridgesL: Traversal[List[Fridge], Fridge] = Traversal.fromTraverse[List, Fridge]
+```
+
+A Lens for the "beers" field
+
+```scala
+val fridgeBeers = Lens[Fridge, List[Beer]](_.beers)(newBeers => fridge => fridge.copy(beers = newBeers))
+```
+
+Now we need to Traverse the beers
+
+```scala
+val beersL: Traversal[List[Beer], Beer] = Traversal.fromTraverse[List, Beer]
+```
+
+An optional for the "stock" field, since it's optional
+
+```scala
+val beerStock = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock))
+```
+
+And now... we compose. The function names should be self explanatory.
+
+```scala
+val barStocks: Traversal[Bar, Stock] =
+  barFridges.
+    composeTraversal(fridgesL).
+    composeLens(fridgeBeers).
+    composeTraversal(beersL).
+    composeOptional(beerStock)
+```
+
+And there we have it. Now to test it out.
+
+```scala
+val firstFridgeBeer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
+val firstFridgeBeer2 = Beer(Some(Name("")), Some(Stock(2)))
+val secondFridgeBeer1 = Beer(Some(Name("Starobrno")), None)
+val secondFridgeBeer2 = Beer(Some(Name("Staropramen")), Some(Stock(6)))
+
+val fridges = List(
+  Fridge(List(firstFridgeBeer1, firstFridgeBeer2)),
+  Fridge(List(secondFridgeBeer1, secondFridgeBeer2)))
+val bar = Bar(fridges)
+```
+
+Get the total stock.
+
+```scala
+println(barStocks.fold(bar)) // Stock(13)
+```
+
+Bump all the stock.
+
+```scala
+println(barStocks.fold(barStocks.modify(s => Stock(s.value + 1))(bar))) // Stock(16)
+```
+
+It think that looks way better than the previous solutions.
 
 
-### Optics with operators {#optics-with-operators}
+#### Operators {#operators}
+
+Finally, since Haskell libraries enjoy using fancy operators so much (not to debate on their usefulness or anything), Monocle provides some of those as well:
+
+```scala
+val barStocksOperators: Traversal[Bar, Stock] =
+  barFridges ^|->> fridgesL ^|-> fridgeBeers ^|->> beersL ^|-? beerStock
+```
+
+I'll leave the decision up to you whether to use them or not.
 
 
 ## Summary and Resources {#summary-and-resources}
+
+I hope this journey through optics has been a useful and informative one for you. When used correctly, they can result in much cleaner and declarative code for accessing fields. Granted, you do need a bit of context, but that's the usual case. And they have fancy names!
+
+Here are some resources if you want to learn more about optics. There are more types of optics that I didn't cover here, but they are usually some modification of the three presented.
+
+1.  [The Monocle Documentation](https://www.optics.dev/Monocle/)
+2.  [Repository with the examples for this post](https://github.com/Nimor111/optics-examples)
+3.  [Haskell lens library](https://hackage.haskell.org/package/lens) - this is one of the most famous optics libraries, it's a bit advanced in its explanations though
+4.  [Very nice optics pictures with explanations](https://impurepics.com/posts/2020-03-22-optics.html) - mentioned in this article
