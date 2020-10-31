@@ -2,7 +2,7 @@
 #+hugo_section: ./
 
 * Posts
-** TODO Peering into Scala optics with Monocle :scala:optics:fp:
+** Peering into Scala optics with Monocle :scala:optics:fp:
 :PROPERTIES:
 :EXPORT_HUGO_SECTION: posts/scala-optics
 :EXPORT_FILE_NAME: index
@@ -347,8 +347,7 @@ Skipping over the theory, as that is a post on its own, the main thing to note i
 
 I'm going to go straight to the Monocle examples for this.
 *** Optics in full
-**** Example with Beers
-***** Optics for a bar
+**** Optics for a bar
 So we want to focus on the ~Stock~ of the beers in our bar, starting from the top. Let's see how that goes.
 
 First we define the separate optics. Yet again, i'm not using the macros provided by Monocle.
@@ -418,7 +417,7 @@ println(barStocks.fold(barStocks.modify(s => Stock(s.value + 1))(bar))) // Stock
 #+end_src
 
 It think that looks way better than the previous solutions.
-***** Operators
+**** Operators
 Finally, since Haskell libraries enjoy using fancy operators so much (not to debate on their usefulness or anything), Monocle provides some of those as well:
 
 #+begin_src scala

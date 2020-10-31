@@ -420,8 +420,7 @@ beersL<span style="color:#f92672">.</span>composeOptional<span style="color:#f92
 <p>Skipping over the theory, as that is a post on its own, the main thing to note is that, for the optics we presented, every one of them, composed with a Traversal, yields a Traversal. This means that a composed optic will most often be a Traversal and will begin with a Traversal of some kind, either for a specific field (since a Lens is a Traversal), followed by a list of something. Sound familiar?</p>
 <p>I&rsquo;m going to go straight to the Monocle examples for this.</p>
 <h2 id="optics-in-full">Optics in full<a href="#optics-in-full" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
-<h3 id="example-with-beers">Example with Beers<a href="#example-with-beers" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
-<h4 id="optics-for-a-bar">Optics for a bar<a href="#optics-for-a-bar" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
+<h3 id="optics-for-a-bar">Optics for a bar<a href="#optics-for-a-bar" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>So we want to focus on the <code>Stock</code> of the beers in our bar, starting from the top. Let&rsquo;s see how that goes.</p>
 <p>First we define the separate optics. Yet again, i&rsquo;m not using the macros provided by Monocle.</p>
 <p>Imports</p>
@@ -458,7 +457,7 @@ beersL<span style="color:#f92672">.</span>composeOptional<span style="color:#f92
 </span></code></pre></div><p>Bump all the stock.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">println<span style="color:#f92672">(</span>barStocks<span style="color:#f92672">.</span>fold<span style="color:#f92672">(</span>barStocks<span style="color:#f92672">.</span>modify<span style="color:#f92672">(</span>s <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Stock</span><span style="color:#f92672">(</span>s<span style="color:#f92672">.</span>value <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">))(</span>bar<span style="color:#f92672">)))</span> <span style="color:#75715e">// Stock(16)
 </span></code></pre></div><p>It think that looks way better than the previous solutions.</p>
-<h4 id="operators">Operators<a href="#operators" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
+<h3 id="operators">Operators<a href="#operators" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>Finally, since Haskell libraries enjoy using fancy operators so much (not to debate on their usefulness or anything), Monocle provides some of those as well:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">val</span> barStocksOperators<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Traversal</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Bar</span>, <span style="color:#66d9ef">Stock</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>
   barFridges <span style="color:#f92672">^|-&gt;&gt;</span> fridgesL <span style="color:#f92672">^|-&gt;</span> fridgeBeers <span style="color:#f92672">^|-&gt;&gt;</span> beersL <span style="color:#f92672">^|-?</span> beerStock
@@ -504,7 +503,6 @@ beersL<span style="color:#f92672">.</span>composeOptional<span style="color:#f92
 </footer>
 
 <script src="https://blog.gbojinov.xyz/assets/main.js"></script>
-<script src="https://blog.gbojinov.xyz/assets/prism.js"></script>
 
 
 

@@ -3,7 +3,7 @@ title = "Peering into Scala optics with Monocle"
 author = ["gbojinov"]
 date = 2020-10-21T00:00:00+03:00
 tags = ["scala", "optics", "fp"]
-draft = true
+draft = false
 summary = "An example of optics in Scala using the Monocle library."
 +++
 
@@ -404,10 +404,7 @@ I'm going to go straight to the Monocle examples for this.
 ## Optics in full {#optics-in-full}
 
 
-### Example with Beers {#example-with-beers}
-
-
-#### Optics for a bar {#optics-for-a-bar}
+### Optics for a bar {#optics-for-a-bar}
 
 So we want to focus on the `Stock` of the beers in our bar, starting from the top. Let's see how that goes.
 
@@ -489,7 +486,7 @@ println(barStocks.fold(barStocks.modify(s => Stock(s.value + 1))(bar))) // Stock
 It think that looks way better than the previous solutions.
 
 
-#### Operators {#operators}
+### Operators {#operators}
 
 Finally, since Haskell libraries enjoy using fancy operators so much (not to debate on their usefulness or anything), Monocle provides some of those as well:
 

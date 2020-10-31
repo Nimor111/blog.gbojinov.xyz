@@ -3,4 +3,4 @@
 	url = https://github.com/LordMathis/hugo-theme-nix
 [submodule "themes/terminal"]
 	path = themes/terminal
-	url = https://github.com/panr/hugo-theme-terminal.git
+	url = https://github.com/Nimor111/hugo-theme-terminal.git
