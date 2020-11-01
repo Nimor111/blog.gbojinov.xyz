@@ -3,7 +3,7 @@ title = "Peering into Scala optics with Monocle"
 author = ["gbojinov"]
 date = 2020-10-21T00:00:00+03:00
 tags = ["scala", "optics", "fp"]
-draft = true
+draft = false
 summary = "An example of optics in Scala using the Monocle library."
 +++
 
@@ -64,58 +64,56 @@ And here's what a `Bar` would look like sent over an API in a format like JSON:
 }
 ```
 
-Objects in the real world can look twice as nested as this, but it's a good place to start.
+Objects in the real world can look a lot more nested than this, but it's a good place to start.
 
 
 ### Let's play around with our data {#let-s-play-around-with-our-data}
 
-So we're imagining we're a bar and we store information about the beers we're selling and how many we have in stock. Of course, we keep them in a fridge, and our bar has multiple fridges. Not every beer has a name or a stock. (Let's hope the bar won't sell those without a name!)
+So we're imagining we're a bar and we store information about the beers we're selling and how many we have in stock. Of course, we keep them in a fridge, and our bar has multiple fridges. Not every beer has a name or a stock. (Maybe we brew our own type of beer!)
 
 Let's walk through a couple of use cases of what we would like to do with our beers.
 
 -   We receive a shipment of beers for our first fridge and we would like to bump all of our stock by a certain amount. How would we do that?
 
-Here's a way with regular (functional and immutable) Scala:
+    Here's a way with regular (functional and immutable) Scala:
 
-```scala
-val beer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
-val beer2 = Beer(None, Some(Stock(3)))
-val bar = Bar(List(Fridge(List(beer1, beer2))))
+    ```scala
+    val beer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
+    val beer2 = Beer(None, Some(Stock(3)))
+    val bar = Bar(List(Fridge(List(beer1, beer2))))
 
-// Woo, a shipment comes!
+    // Woo, a shipment comes!
 
-val updatedBar = Bar(
-  bar.fridges.map(fridge =>
-    Fridge(fridge.beers.map(beer =>
-      Beer(beer.name, beer.stock.map(s =>
-        Stock(s.value + 1)))))))
+    val updatedBar = Bar(
+    bar.fridges.map(fridge =>
+        Fridge(fridge.beers.map(beer =>
+        Beer(beer.name, beer.stock.map(s =>
+            Stock(s.value + 1)))))))
 
-println(updatedBar)
-// Bar(List(Fridge(List(Beer(Some(Name(Starobrno)),Some(Stock(6))), Beer(None,Some(Stock(4)))))))
-```
+    println(updatedBar)
+    // Bar(List(Fridge(List(Beer(Some(Name(Starobrno)),Some(Stock(6))), Beer(None,Some(Stock(4)))))))
+    ```
 
-This works, but is less than ideal.
+    This works, but is less than ideal.
 
 -   We would like to figure out how much stock we have in our bar.
 
-<!--listend-->
+    ```scala
+    bar.fridges.foldLeft(0)((total, fridge) =>
+    total + fridge.beers.foldLeft(0)((fridgeTotal, beer) =>
+        fridgeTotal + beer.stock.getOrElse(Stock(0)).value))
 
-```scala
-bar.fridges.foldLeft(0)((total, fridge) =>
-  total + fridge.beers.foldLeft(0)((fridgeTotal, beer) =>
-    fridgeTotal + beer.stock.getOrElse(Stock(0)).value))
+    // 8
+    ```
 
-// 8
-```
-
-Again, less than ideal.
+    Again, less than ideal.
 
 So, what can we do to make this code more concise and less convoluted?
 
 Enter optics.
 
 
-### Why do we care about optics? {#why-do-we-care-about-optics}
+### What do optics do and why should we care about them? {#what-do-optics-do-and-why-should-we-care-about-them}
 
 To be able to easily traverse deeply nested data structures (which is often the case with API responses) with minimal code and without lots of nested maps, folds, conditionals, etc. Optics make use of the compositional and pure nature of FP very well.
 
@@ -136,15 +134,15 @@ I will present three main types of optics: first with a little theory (the type 
 
 #### Theory {#theory}
 
-Lenses are used for getting and setting fields of deeply nested product types when you know the value is there.
+Lenses are used for getting and setting fields of deeply nested product types when you know the value is there. (it's not optional)
 
-A lens is defined by:
+A lens is defined by the following operations:
 
 1.  `get` (to get the value of the focused field),
 2.  `set` (to change the value of the focused field)
-3.  `modify` (to get an element and apply a function to  it) - this can be expressed through `get` and `set` so is not required
+3.  `modify` (to get an element and apply a function to  it) - this can be expressed through `get` and `set` so is not required in an implementation
 
-The SimpleLens type describes a structure `S` that contains a focused field of type `A`
+The `SimpleLens` type describes a structure `S` that contains a focused field of type `A`
 
 ```scala
 abstract class SimpleLens[S, A] {
@@ -157,14 +155,18 @@ abstract class SimpleLens[S, A] {
 The type is actually a bit more complicated
 
 ```scala
-abstract class Lens[S, T, A, B]
+abstract class Lens[S, T, A, B] {
+  def get(s: S): A
+  def set(s: S, b: B): T
+  def modify(s: S)(f: A => B): T = set(s, f(get(s)))
+}
 
 // so SimpleLens is
 type SimpleLens[S, A] = Lens[S, S, A, A]
 ```
 
--   S - input structure type
--   T - output structure type, since setting the field can change the type (changing an int field to string for example)
+-   S - input structure type, our nested data structure
+-   T - output structure type, since setting the field can change the type (changing an int field to a string for example)
 -   A - input field type
 -   B - output field type - again, might change
 
@@ -185,8 +187,8 @@ val beerName = new SimpleLens[Beer, Name] {
 }
 
 beerName.get(Beer(Name("Staropramen"))) // Name(Staropramen)
-beerName.set(Beer(Name("Staropramen")), Name("Starobrno"))
-beerName.modify(Beer(Name("Staropramen")))(n => Name(n.value + "!"))
+beerName.set(Beer(Name("Staropramen")), Name("Starobrno")) // Beer(Name(Staropramen))
+beerName.modify(Beer(Name("Staropramen")))(n => Name(n.value + "!")) // Beer(Name(Staropramen!))
 ```
 
 
@@ -197,7 +199,7 @@ The Monocle library provides convenient apply methods for creating a Lens by pro
 ```scala
 import monocle.Lens
 
-val barFridges = Lens[Bar, List[Fridge]](_.fridge)(newFridges => bar => bar.copy(fridges = newFridges))
+val barFridges = Lens[Bar, List[Fridge]](_.fridges)(newFridges => bar => bar.copy(fridges = newFridges))
 
 val fridgeBeers = Lens[Fridge, List[Beer]](_.beers)(newBeers => fridge => fridge.copy(beers = newBeers))
 
@@ -224,7 +226,7 @@ A nice way to think about prisms is that they define an is-a relationship and le
 
 A prism is defined by:
 
-1.  `match` (a matcher function that returns an `Either` - Left if the constructor is matched, Right if it is)
+1.  `match` (a matcher function that returns an `Either` - Left if the constructor is not matched, Right if it is)
 2.  `construct` (a function to wrap a value into the constructor)
 
 These operations are used to define some more convenient ones:
@@ -232,15 +234,16 @@ These operations are used to define some more convenient ones:
 1.  `preview` (to get the value of the focused field, or None if it's not there) - this is analoguous to get, but returns an `Option`
 2.  `review` (to wrap a value in the constructor)
 
-The SimplePrism type describes a structure `S` that contains a focused field of type `A` that might not be there
+The `SimplePrism` type describes a structure `S` that contains a focused field of type `A` that might not be there
 
 ```scala
 abstract class SimplePrism[S, A] {
-  def match(a: A): Either[S, A]
+  // because reserved word
+  def matcher(a: A): Either[S, A]
   def construct(a: A): S
 
   // the double match
-  def preview(a: A): Option[A] = match this.match(a) {
+  def preview(a: A): Option[A] = this.matcher(a) match {
     case Right(a) => Some(a)
     case Left(_) => None
   }
@@ -252,7 +255,19 @@ abstract class SimplePrism[S, A] {
 The type is actually a bit more complicated
 
 ```scala
-abstract class Prism[S, T, A, B]
+abstract class Prism[S, T, A, B] {
+  // we might choose a different type for our Left, some error for example
+  def matcher(a: A): Either[T, A]
+  // he we wrap whatever the result of our computation is back into the result sum type
+  def construct(b: B): T
+
+  def preview(a: A): Option[A] = this.matcher(a) match {
+    case Right(a) => Some(a)
+    case Left(_) => None
+  }
+
+  def review(b: B): T = this.construct(b)
+}
 
 // so SimplePrism is
 type SimplePrism[S, A] = Prism[S, S, A, A]
@@ -265,12 +280,12 @@ type SimplePrism[S, A] = Prism[S, S, A, A]
 
 The `SimplePrism` is a convenient alias for when the input and output types are the same.
 
-Let's create a prism for the Some constructor of the Option type, since we have several optional fields in our data.
+Let's create a prism for the `Some` constructor of the `Option` type, since we have several optional fields in our data.
 
 ```scala
 // puns
 val somePrism = new SimplePrism[Option[A], A] {
-  def match(a: A): Either[Option[A], A] = a match {
+  def matcher(a: A): Either[Option[A], A] = a match {
     // the value is there
     case Some(y) => Right(y)
     // the value is missing
@@ -280,11 +295,11 @@ val somePrism = new SimplePrism[Option[A], A] {
   def construct(a: A): Option[A] = Some(a)
 }
 
-somePrism.preview(Some(5)) // Some(5))))
+somePrism.preview(Some(5)) // Some(5)
 somePrism.review(5) // Some(5)
 ```
 
-This isn't the most sensible example in of itself, but when we get to composing optics it'll be very convenient. In fact, it's so convenient that there is another type of optic, `Optional`, which composes a Lens and this prism to create Lenses for optional fields.
+This isn't the most sensible example in of itself, but when we get to composing optics it'll be very convenient. In fact, it's so convenient that there is another type of optic, `Optional`, which composes a `Lens` and this prism to create lenses for optional fields.
 
 
 #### In Practice {#in-practice}
@@ -304,7 +319,6 @@ Preview is called `getOption`, and review is `reverseGet`.
 
 ```scala
 prismOption.getOption(Some(Name("Starobrno"))) // Some(Name(Starobrno))
-
 prismOption.reverseGet(Name("Starobrno")) // Some(Name(Starobrno))
 ```
 
@@ -316,9 +330,9 @@ I promise, it'll make sense in a bit.
 
 #### Theory {#theory}
 
-Traversals are the meat and bread of traversing nested data, because they deal with lists of values. A traversal focuses on 0 or more values of a type, or a field that is a list of values of the same type. So a lens is actually a traversal that focuses on a single value.
+Traversals are the meat and bread of traversing(get it?) nested data, because they deal with lists of values. A traversal focuses on 0 or more values of a type, or a field that is a list of values of the same type. So a lens is actually a traversal that focuses on a single value, and a prism is a traversal that focuses on on 0 or 1 value.
 
-A Traversal is basically a wrapper around types that can be traversed. `traverse` is like `map`, but the function that is applied to each element of the structure is effectful. A Traversal allows us to transform values of a field in any way we like.
+A Traversal is basically a wrapper around types that can be traversed. `traverse` is like `map`, but the function that is applied to each element of the structure is effectful. A `Traversal` allows us to transform values of a field in any way we like.
 
 A traversal is, not surprisingly, defined by the following function:
 
@@ -336,7 +350,9 @@ abstract class SimpleTraversal[S, A] {
 As always, the type can be more complicated.
 
 ```scala
-abstract class Traversal[S, T, A, B]
+abstract class Traversal[S, T, A, B] {
+  def traverse[F[_]: Applicative](f: A => F[B])(s: S): F[T]
+}
 
 type SimpleTraversal[S, A] = Traversal[S, S, A, A]
 ```
@@ -375,12 +391,13 @@ val beers = List(beer1, beer2)
 beersTraversal.getAll(beers) // List(beer1, beer2)
 ```
 
-For a more sensible example, we can fold them to calculate all the stock (using a monoid for Stock). I will cheat a bit here and use a compose, which I will cover in the next (culminative) section. Ignore it for now.
+For a more sensible example, we can fold them to calculate all the stock (using a monoid for Stock). I will cheat a bit here and use a compose, which I will cover in the next (culminative) section.
 
 ```scala
 import monocle.Optional
 import cats.Monoid
 
+// Composing a lens for Stock and a prism for Option yields an Optional
 val beerStockOptional = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock)))
 
 implicit val stockMonoid: Monoid[Stock] = new Monoid[Stock] {
@@ -388,6 +405,7 @@ implicit val stockMonoid: Monoid[Stock] = new Monoid[Stock] {
   override def combine(x: Stock, y: Stock): Stock = Stock(x.value + y.value)
 }
 
+// uses the Stock monoid
 beersL.composeOptional(beerStockOptional).fold(beers) // Stock(7)
 ```
 
@@ -396,7 +414,7 @@ beersL.composeOptional(beerStockOptional).fold(beers) // Stock(7)
 
 Now that we've looked at some of the main types of optics, it's time to see how they can be used with real data (or in our case, the data we defined at the beginning of the post). The power of optics lies in their ability to compose. By composing them we can perform the nested traversal that makes optics so useful.
 
-Skipping over the theory, as that is a post on its own, the main thing to note is that, for the optics we presented, every one of them, composed with a Traversal, yields a Traversal. This means that a composed optic will most often be a Traversal and will begin with a Traversal of some kind, either for a specific field (since a Lens is a Traversal), followed by a list of something. Sound familiar?
+Skipping over the theory, as that is a post on its own, the main thing to note is that, for the optics we presented, every one of them, composed with a `Traversal`, yields a `Traversal`. This means that a composed optic will most often be a `Traversal` and will begin with a `Traversal` of some kind, either for a specific field (since a `Lens` is a `Traversal`), followed by a list of something. Sound familiar?
 
 I'm going to go straight to the Monocle examples for this.
 
@@ -419,7 +437,7 @@ import monocle.{Lens, Traversal, Optional}
 A Lens for the "fridges" field
 
 ```scala
-val barFridges = Lens[Bar, List[Fridge]](_.fridges)(newFridges => bar => bar.copy(fridges = newFridges))
+val barFridges: Lens[Bar, List[Fridge]] = Lens[Bar, List[Fridge]](_.fridges)(newFridges => bar => bar.copy(fridges = newFridges))
 ```
 
 Now we need to Traverse the fridges
@@ -431,7 +449,7 @@ val fridgesL: Traversal[List[Fridge], Fridge] = Traversal.fromTraverse[List, Fri
 A Lens for the "beers" field
 
 ```scala
-val fridgeBeers = Lens[Fridge, List[Beer]](_.beers)(newBeers => fridge => fridge.copy(beers = newBeers))
+val fridgeBeers: Lens[Fridge, List[Beer]] = Lens[Fridge, List[Beer]](_.beers)(newBeers => fridge => fridge.copy(beers = newBeers))
 ```
 
 Now we need to Traverse the beers
@@ -443,7 +461,7 @@ val beersL: Traversal[List[Beer], Beer] = Traversal.fromTraverse[List, Beer]
 An optional for the "stock" field, since it's optional
 
 ```scala
-val beerStock = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock))
+val beerStock: Optional[Beer, Stock] = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock))
 ```
 
 And now... we compose. The function names should be self explanatory.
@@ -471,7 +489,7 @@ val fridges = List(
 val bar = Bar(fridges)
 ```
 
-Get the total stock.
+Get the total stock. We again require the Stock monoid implicit in scope.
 
 ```scala
 println(barStocks.fold(bar)) // Stock(13)
