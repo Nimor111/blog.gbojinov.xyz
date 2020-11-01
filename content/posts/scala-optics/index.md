@@ -86,9 +86,9 @@ Let's walk through a couple of use cases of what we would like to do with our be
 
     val updatedBar = Bar(
     bar.fridges.map(fridge =>
-        Fridge(fridge.beers.map(beer =>
+      Fridge(fridge.beers.map(beer =>
         Beer(beer.name, beer.stock.map(s =>
-            Stock(s.value + 1)))))))
+          Stock(s.value + 1)))))))
 
     println(updatedBar)
     // Bar(List(Fridge(List(Beer(Some(Name(Starobrno)),Some(Stock(6))), Beer(None,Some(Stock(4)))))))
@@ -100,7 +100,7 @@ Let's walk through a couple of use cases of what we would like to do with our be
 
     ```scala
     bar.fridges.foldLeft(0)((total, fridge) =>
-    total + fridge.beers.foldLeft(0)((fridgeTotal, beer) =>
+      total + fridge.beers.foldLeft(0)((fridgeTotal, beer) =>
         fridgeTotal + beer.stock.getOrElse(Stock(0)).value))
 
     // 8
@@ -134,7 +134,7 @@ I will present three main types of optics: first with a little theory (the type 
 
 #### Theory {#theory}
 
-Lenses are used for getting and setting fields of deeply nested product types when you know the value is there. (it's not optional)
+Lenses are used for getting and setting fields of deeply nested product types, when you know the value is there. (it's not optional)
 
 A lens is defined by the following operations:
 
@@ -475,7 +475,7 @@ val barStocks: Traversal[Bar, Stock] =
     composeOptional(beerStock)
 ```
 
-And there we have it. Now to test it out.
+And there we have it. Now, to test it out.
 
 ```scala
 val firstFridgeBeer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
