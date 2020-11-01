@@ -37,7 +37,7 @@ object Types {
 
 And here's what a `Bar` would look like sent over an API in a format like JSON:
 
-```json
+```javascript
 {
   "fridges": [{
     "beers": [
@@ -64,7 +64,7 @@ And here's what a `Bar` would look like sent over an API in a format like JSON:
 }
 ```
 
-Objects in the real world can look a lot more nested than this, but it's a good place to start.
+Objects in the real world can look quite a bit more nested than this, but it's a good place to start.
 
 
 ### Let's play around with our data {#let-s-play-around-with-our-data}
@@ -115,13 +115,13 @@ Enter optics.
 
 ### What do optics do and why should we care about them? {#what-do-optics-do-and-why-should-we-care-about-them}
 
-To be able to easily traverse deeply nested data structures (which is often the case with API responses) with minimal code and without lots of nested maps, folds, conditionals, etc. Optics make use of the compositional and pure nature of FP very well.
+To be able to easily traverse deeply nested data structures (which is often the case with API responses) with minimal code and without all these nested maps, folds, conditionals, etc. Optics make very good use of the compositional and pure nature of FP.
 
 Optics are an abstraction characterized by several operations, which revolve around getting a particular field, setting it, or modifying it.
 
 There are several types of optics.
 
-`NB` Optics are called so because you "focus" into concrete elements of nested data structures with them, like the foci of an optical device.
+`NB` Optics are called so because you "focus" into specific elements of nested data structures with them, like the foci of an optical device.
 
 
 ## Types of optics {#types-of-optics}
@@ -138,11 +138,11 @@ Lenses are used for getting and setting fields of deeply nested product types wh
 
 A lens is defined by the following operations:
 
-1.  `get` (to get the value of the focused field),
+1.  `get` (to get the value of the focused field)
 2.  `set` (to change the value of the focused field)
-3.  `modify` (to get an element and apply a function to  it) - this can be expressed through `get` and `set` so is not required in an implementation
+3.  `modify` (to get an element and apply a function to it) - this can be expressed through `get` and `set` so it's not required in an implementation
 
-The `SimpleLens` type describes a structure `S` that contains a focused field of type `A`
+The `SimpleLens` describes a structure of type `S` that contains a focused field of type `A`
 
 ```scala
 abstract class SimpleLens[S, A] {
@@ -168,13 +168,13 @@ type SimpleLens[S, A] = Lens[S, S, A, A]
 -   S - input structure type, our nested data structure
 -   T - output structure type, since setting the field can change the type (changing an int field to a string for example)
 -   A - input field type
--   B - output field type - again, might change
+-   B - output field type - again, the input type might change
 
 The `SimpleLens` is a convenient alias for when the input and output types are the same.
 
 We create specific lenses for the fields we want to work with, e.g. we "focus" on the field.
 
-To create a lens for the name field of the `Beer` type (let's ignore the `Option` there for now, we'll get to that later), we need a way to get a field from a case class and a way to set it. The minimal implementation for a Lens is to define `get` and `set` since `modify` can be expressed through them.
+To create a lens for the name field of the `Beer` type (let's ignore the `Option` there for now, we'll get to that later), we need a way to get a field from a case class and a way to set it. The minimal implementation for a `Lens` is to define `get` and `set` since `modify` can be expressed through them.
 
 ```scala
 case class Name(value: String)
@@ -363,7 +363,7 @@ To implement a traversal, we can use the `Traverse` type class from cats (not to
 
 ```scala
 // List[_] is an instance of ~Traverse~
-val listTraverse[List[A], A] = new SimpleTraversal {
+val listTraversal[List[A], A] = new SimpleTraversal {
   def traverse[F[_]: Applicative](f: A => F[A])(s: List[A]): F[List[A]] = s.traverse(f) // assuming an extension method traverse is defined
 }
 ```
@@ -489,7 +489,7 @@ val fridges = List(
 val bar = Bar(fridges)
 ```
 
-Get the total stock. We again require the Stock monoid implicit in scope.
+Get the total stock. We again require the `Stock` monoid implicit in scope.
 
 ```scala
 println(barStocks.fold(bar)) // Stock(13)
@@ -501,7 +501,7 @@ Bump all the stock.
 println(barStocks.fold(barStocks.modify(s => Stock(s.value + 1))(bar))) // Stock(16)
 ```
 
-It think that looks way better than the previous solutions.
+I think that looks way better than the previous solutions.
 
 
 ### Operators {#operators}

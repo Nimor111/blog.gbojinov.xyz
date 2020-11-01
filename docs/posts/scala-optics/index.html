@@ -176,31 +176,31 @@ The examples of this post are taken from this fantastic page about optics: <a hr
   <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Beer</span><span style="color:#f92672">(</span>name<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Option</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Name</span><span style="color:#f92672">],</span> stock<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Option</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Stock</span><span style="color:#f92672">])</span>
 <span style="color:#f92672">}</span>
 </code></pre></div><p>And here&rsquo;s what a <code>Bar</code> would look like sent over an API in a format like JSON:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-json" data-lang="json">{
-  <span style="color:#f92672">&#34;fridges&#34;</span>: [{
-    <span style="color:#f92672">&#34;beers&#34;</span>: [
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-javascript" data-lang="javascript">{
+  <span style="color:#e6db74">&#34;fridges&#34;</span><span style="color:#f92672">:</span> [{
+    <span style="color:#e6db74">&#34;beers&#34;</span><span style="color:#f92672">:</span> [
       {
-        <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Starobrno&#34;</span>,
-        <span style="color:#f92672">&#34;stock&#34;</span>: <span style="color:#ae81ff">5</span>
+        <span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;Starobrno&#34;</span>,
+        <span style="color:#e6db74">&#34;stock&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">5</span>
       },
       {
-        <span style="color:#f92672">&#34;stock&#34;</span>: <span style="color:#ae81ff">2</span>
+        <span style="color:#e6db74">&#34;stock&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">2</span>
       }
     ]
   },
   {
-    <span style="color:#f92672">&#34;beers&#34;</span>: [
+    <span style="color:#e6db74">&#34;beers&#34;</span><span style="color:#f92672">:</span> [
       {
-        <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Starobrno&#34;</span>,
+        <span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;Starobrno&#34;</span>,
       },
       {
-        <span style="color:#f92672">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;Staropramen&#34;</span>,
-        <span style="color:#f92672">&#34;stock&#34;</span>: <span style="color:#ae81ff">6</span>
+        <span style="color:#e6db74">&#34;name&#34;</span><span style="color:#f92672">:</span> <span style="color:#e6db74">&#34;Staropramen&#34;</span>,
+        <span style="color:#e6db74">&#34;stock&#34;</span><span style="color:#f92672">:</span> <span style="color:#ae81ff">6</span>
       }
     ]
   }]
 }
-</code></pre></div><p>Objects in the real world can look a lot more nested than this, but it&rsquo;s a good place to start.</p>
+</code></pre></div><p>Objects in the real world can look quite a bit more nested than this, but it&rsquo;s a good place to start.</p>
 <h3 id="let-s-play-around-with-our-data">Let&rsquo;s play around with our data<a href="#let-s-play-around-with-our-data" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>So we&rsquo;re imagining we&rsquo;re a bar and we store information about the beers we&rsquo;re selling and how many we have in stock. Of course, we keep them in a fridge, and our bar has multiple fridges. Not every beer has a name or a stock. (Maybe we brew our own type of beer!)</p>
 <p>Let&rsquo;s walk through a couple of use cases of what we would like to do with our beers.</p>
@@ -237,10 +237,10 @@ total <span style="color:#f92672">+</span> fridge<span style="color:#f92672">.</
 <p>So, what can we do to make this code more concise and less convoluted?</p>
 <p>Enter optics.</p>
 <h3 id="what-do-optics-do-and-why-should-we-care-about-them">What do optics do and why should we care about them?<a href="#what-do-optics-do-and-why-should-we-care-about-them" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
-<p>To be able to easily traverse deeply nested data structures (which is often the case with API responses) with minimal code and without lots of nested maps, folds, conditionals, etc. Optics make use of the compositional and pure nature of FP very well.</p>
+<p>To be able to easily traverse deeply nested data structures (which is often the case with API responses) with minimal code and without all these nested maps, folds, conditionals, etc. Optics make very good use of the compositional and pure nature of FP.</p>
 <p>Optics are an abstraction characterized by several operations, which revolve around getting a particular field, setting it, or modifying it.</p>
 <p>There are several types of optics.</p>
-<p><code>NB</code> Optics are called so because you &ldquo;focus&rdquo; into concrete elements of nested data structures with them, like the foci of an optical device.</p>
+<p><code>NB</code> Optics are called so because you &ldquo;focus&rdquo; into specific elements of nested data structures with them, like the foci of an optical device.</p>
 <h2 id="types-of-optics">Types of optics<a href="#types-of-optics" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h2>
 <p>I will present three main types of optics: first with a little theory (the type definition and operations it supports), and then with an example with our data using the Monocle library.</p>
 <h3 id="lens">Lens<a href="#lens" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
@@ -248,11 +248,11 @@ total <span style="color:#f92672">+</span> fridge<span style="color:#f92672">.</
 <p>Lenses are used for getting and setting fields of deeply nested product types when you know the value is there. (it&rsquo;s not optional)</p>
 <p>A lens is defined by the following operations:</p>
 <ol>
-<li><code>get</code> (to get the value of the focused field),</li>
+<li><code>get</code> (to get the value of the focused field)</li>
 <li><code>set</code> (to change the value of the focused field)</li>
-<li><code>modify</code> (to get an element and apply a function to  it) - this can be expressed through <code>get</code> and <code>set</code> so is not required in an implementation</li>
+<li><code>modify</code> (to get an element and apply a function to it) - this can be expressed through <code>get</code> and <code>set</code> so it&rsquo;s not required in an implementation</li>
 </ol>
-<p>The <code>SimpleLens</code> type describes a structure <code>S</code> that contains a focused field of type <code>A</code></p>
+<p>The <code>SimpleLens</code> describes a structure of type <code>S</code> that contains a focused field of type <code>A</code></p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">abstract</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">SimpleLens</span><span style="color:#f92672">[</span><span style="color:#66d9ef">S</span>, <span style="color:#66d9ef">A</span><span style="color:#f92672">]</span> <span style="color:#f92672">{</span>
   <span style="color:#66d9ef">def</span> get<span style="color:#f92672">(</span>s<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">S</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">A</span>
   <span style="color:#66d9ef">def</span> set<span style="color:#f92672">(</span>s<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">S</span><span style="color:#f92672">,</span> b<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">A</span><span style="color:#f92672">)</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">S</span>
@@ -271,11 +271,11 @@ total <span style="color:#f92672">+</span> fridge<span style="color:#f92672">.</
 <li>S - input structure type, our nested data structure</li>
 <li>T - output structure type, since setting the field can change the type (changing an int field to a string for example)</li>
 <li>A - input field type</li>
-<li>B - output field type - again, might change</li>
+<li>B - output field type - again, the input type might change</li>
 </ul>
 <p>The <code>SimpleLens</code> is a convenient alias for when the input and output types are the same.</p>
 <p>We create specific lenses for the fields we want to work with, e.g. we &ldquo;focus&rdquo; on the field.</p>
-<p>To create a lens for the name field of the <code>Beer</code> type (let&rsquo;s ignore the <code>Option</code> there for now, we&rsquo;ll get to that later), we need a way to get a field from a case class and a way to set it. The minimal implementation for a Lens is to define <code>get</code> and <code>set</code> since <code>modify</code> can be expressed through them.</p>
+<p>To create a lens for the name field of the <code>Beer</code> type (let&rsquo;s ignore the <code>Option</code> there for now, we&rsquo;ll get to that later), we need a way to get a field from a case class and a way to set it. The minimal implementation for a <code>Lens</code> is to define <code>get</code> and <code>set</code> since <code>modify</code> can be expressed through them.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">case</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Name</span><span style="color:#f92672">(</span>value<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">String</span><span style="color:#f92672">)</span>
 <span style="color:#66d9ef">case</span> <span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Beer</span><span style="color:#f92672">(</span>name<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Name</span><span style="color:#f92672">)</span>
 
@@ -406,7 +406,7 @@ Luckily, Monocle provides an apply method to supply a matching function with <co
 </code></pre></div><p>The type parameter explanation is the same as for the previous optics.</p>
 <p>To implement a traversal, we can use the <code>Traverse</code> type class from cats (not to be confused with the default <code>Traversable</code> from Scala, though they sure meant us to confuse the two, since that is what <code>Traverse</code> is called in Haskell) and simply take its <code>traverse</code> method implementation.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#75715e">// List[_] is an instance of ~Traverse~
-</span><span style="color:#75715e"></span><span style="color:#66d9ef">val</span> listTraverse<span style="color:#f92672">[</span><span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">A</span><span style="color:#f92672">]</span>, <span style="color:#66d9ef">A</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">SimpleTraversal</span> <span style="color:#f92672">{</span>
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">val</span> listTraversal<span style="color:#f92672">[</span><span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">A</span><span style="color:#f92672">]</span>, <span style="color:#66d9ef">A</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span> <span style="color:#66d9ef">new</span> <span style="color:#a6e22e">SimpleTraversal</span> <span style="color:#f92672">{</span>
   <span style="color:#66d9ef">def</span> traverse<span style="color:#f92672">[</span><span style="color:#66d9ef">F</span><span style="color:#f92672">[</span><span style="color:#66d9ef">_</span><span style="color:#f92672">]</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Applicative</span><span style="color:#f92672">](</span>f<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">A</span> <span style="color:#f92672">=&gt;</span> F<span style="color:#f92672">[</span><span style="color:#66d9ef">A</span><span style="color:#f92672">])(</span>s<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">A</span><span style="color:#f92672">])</span><span style="color:#66d9ef">:</span> <span style="color:#66d9ef">F</span><span style="color:#f92672">[</span><span style="color:#66d9ef">List</span><span style="color:#f92672">[</span><span style="color:#66d9ef">A</span><span style="color:#f92672">]]</span> <span style="color:#66d9ef">=</span> s<span style="color:#f92672">.</span>traverse<span style="color:#f92672">(</span>f<span style="color:#f92672">)</span> <span style="color:#75715e">// assuming an extension method traverse is defined
 </span><span style="color:#75715e"></span><span style="color:#f92672">}</span>
 </code></pre></div><h4 id="in-practice">In Practice<a href="#in-practice" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h4>
@@ -473,11 +473,11 @@ beersTraversal<span style="color:#f92672">.</span>getAll<span style="color:#f926
   <span style="color:#a6e22e">Fridge</span><span style="color:#f92672">(</span><span style="color:#a6e22e">List</span><span style="color:#f92672">(</span>firstFridgeBeer1<span style="color:#f92672">,</span> firstFridgeBeer2<span style="color:#f92672">)),</span>
   <span style="color:#a6e22e">Fridge</span><span style="color:#f92672">(</span><span style="color:#a6e22e">List</span><span style="color:#f92672">(</span>secondFridgeBeer1<span style="color:#f92672">,</span> secondFridgeBeer2<span style="color:#f92672">)))</span>
 <span style="color:#66d9ef">val</span> bar <span style="color:#66d9ef">=</span> <span style="color:#a6e22e">Bar</span><span style="color:#f92672">(</span>fridges<span style="color:#f92672">)</span>
-</code></pre></div><p>Get the total stock. We again require the Stock monoid implicit in scope.</p>
+</code></pre></div><p>Get the total stock. We again require the <code>Stock</code> monoid implicit in scope.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">println<span style="color:#f92672">(</span>barStocks<span style="color:#f92672">.</span>fold<span style="color:#f92672">(</span>bar<span style="color:#f92672">))</span> <span style="color:#75715e">// Stock(13)
 </span></code></pre></div><p>Bump all the stock.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala">println<span style="color:#f92672">(</span>barStocks<span style="color:#f92672">.</span>fold<span style="color:#f92672">(</span>barStocks<span style="color:#f92672">.</span>modify<span style="color:#f92672">(</span>s <span style="color:#66d9ef">=&gt;</span> <span style="color:#a6e22e">Stock</span><span style="color:#f92672">(</span>s<span style="color:#f92672">.</span>value <span style="color:#f92672">+</span> <span style="color:#ae81ff">1</span><span style="color:#f92672">))(</span>bar<span style="color:#f92672">)))</span> <span style="color:#75715e">// Stock(16)
-</span></code></pre></div><p>It think that looks way better than the previous solutions.</p>
+</span></code></pre></div><p>I think that looks way better than the previous solutions.</p>
 <h3 id="operators">Operators<a href="#operators" class="hanchor" ariaLabel="Anchor">&#8983;</a> </h3>
 <p>Finally, since Haskell libraries enjoy using fancy operators so much (not to debate on their usefulness or anything), Monocle provides some of those as well:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-scala" data-lang="scala"><span style="color:#66d9ef">val</span> barStocksOperators<span style="color:#66d9ef">:</span> <span style="color:#66d9ef">Traversal</span><span style="color:#f92672">[</span><span style="color:#66d9ef">Bar</span>, <span style="color:#66d9ef">Stock</span><span style="color:#f92672">]</span> <span style="color:#66d9ef">=</span>

@@ -29,8 +29,7 @@ object Types {
 }
 #+end_src
 And here's what a ~Bar~ would look like sent over an API in a format like JSON:
-#+begin_src javascript
-{
+
   "fridges": [{
     "beers": [
       {
