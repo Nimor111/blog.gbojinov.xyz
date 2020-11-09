@@ -5,6 +5,8 @@ date = 2020-10-21T00:00:00+03:00
 tags = ["scala", "optics", "fp"]
 draft = false
 summary = "An example of optics in Scala using the Monocle library."
+[header]
+  image = "/images/diffraction.png"
 +++
 
 ## Introduction {#introduction}
@@ -78,20 +80,20 @@ Let's walk through a couple of use cases of what we would like to do with our be
     Here's a way with regular (functional and immutable) Scala:
 
     ```scala
-    val beer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
-    val beer2 = Beer(None, Some(Stock(3)))
-    val bar = Bar(List(Fridge(List(beer1, beer2))))
+        val beer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
+        val beer2 = Beer(None, Some(Stock(3)))
+        val bar = Bar(List(Fridge(List(beer1, beer2))))
 
-    // Woo, a shipment comes!
+        // Woo, a shipment comes!
 
-    val updatedBar = Bar(
-    bar.fridges.map(fridge =>
-      Fridge(fridge.beers.map(beer =>
-        Beer(beer.name, beer.stock.map(s =>
-          Stock(s.value + 1)))))))
+        val updatedBar = Bar(
+        bar.fridges.map(fridge =>
+          Fridge(fridge.beers.map(beer =>
+            Beer(beer.name, beer.stock.map(s =>
+              Stock(s.value + 1)))))))
 
-    println(updatedBar)
-    // Bar(List(Fridge(List(Beer(Some(Name(Starobrno)),Some(Stock(6))), Beer(None,Some(Stock(4)))))))
+        println(updatedBar)
+        // Bar(List(Fridge(List(Beer(Some(Name(Starobrno)),Some(Stock(6))), Beer(None,Some(Stock(4)))))))
     ```
 
     This works, but is less than ideal.
@@ -99,11 +101,11 @@ Let's walk through a couple of use cases of what we would like to do with our be
 -   We would like to figure out how much stock we have in our bar.
 
     ```scala
-    bar.fridges.foldLeft(0)((total, fridge) =>
-      total + fridge.beers.foldLeft(0)((fridgeTotal, beer) =>
-        fridgeTotal + beer.stock.getOrElse(Stock(0)).value))
+        bar.fridges.foldLeft(0)((total, fridge) =>
+          total + fridge.beers.foldLeft(0)((fridgeTotal, beer) =>
+            fridgeTotal + beer.stock.getOrElse(Stock(0)).value))
 
-    // 8
+        // 8
     ```
 
     Again, less than ideal.
