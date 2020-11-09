@@ -2,10 +2,10 @@
 title = "Peering into Scala optics with Monocle"
 author = ["gbojinov"]
 date = 2020-10-21T00:00:00+03:00
-images = ["images/diffraction.png"]
 tags = ["scala", "optics", "fp"]
 draft = false
 summary = "An example of optics in Scala using the Monocle library."
+image = "images/diffraction.png"
 +++
 
 ## Introduction {#introduction}
