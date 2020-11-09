@@ -6,6 +6,7 @@ images = ["images/diffraction.png"]
 tags = ["scala", "optics", "fp"]
 draft = false
 summary = "An example of optics in Scala using the Monocle library."
+cover = "images/diffraction.png"
 +++
 
 ## Introduction {#introduction}

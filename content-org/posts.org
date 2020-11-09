@@ -8,6 +8,7 @@
 :EXPORT_FILE_NAME: index
 :EXPORT_DATE: <2020-10-21 Wed>
 :EXPORT_HUGO_CUSTOM_FRONT_MATTER: :summary An example of optics in Scala using the Monocle library.
+:EXPORT_HUGO_CUSTOM_FRONT_MATTER+: :cover images/diffraction.png
 :EXPORT_HUGO_IMAGES: images/diffraction.png
 :END:
 *** Introduction
