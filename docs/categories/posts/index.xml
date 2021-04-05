@@ -5,11 +5,7 @@
     <link>https://blog.gbojinov.xyz/categories/posts/</link>
     <description>Recent content in posts on Nimor&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    
-	<atom:link href="https://blog.gbojinov.xyz/categories/posts/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <language>en-us</language><atom:link href="https://blog.gbojinov.xyz/categories/posts/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Posts</title>
       <link>https://blog.gbojinov.xyz/posts/</link>

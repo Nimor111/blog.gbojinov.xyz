@@ -13,5 +13,5 @@ clean:
 
 deploy: build
 	git add -A
-	git commit -m "Deploy..."
+	git commit --author "Nimor111 <georgi.bojinov@hotmail.com>" -m "Deploy..."
 	git push origin master

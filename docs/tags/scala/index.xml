@@ -6,11 +6,7 @@
     <description>Recent content in scala on Nimor&#39;s blog</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 21 Oct 2020 00:00:00 +0300</lastBuildDate>
-    
-	<atom:link href="https://blog.gbojinov.xyz/tags/scala/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Wed, 21 Oct 2020 00:00:00 +0300</lastBuildDate><atom:link href="https://blog.gbojinov.xyz/tags/scala/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Peering into Scala optics with Monocle</title>
       <link>https://blog.gbojinov.xyz/posts/scala-optics/</link>
