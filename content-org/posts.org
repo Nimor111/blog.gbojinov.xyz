@@ -19,7 +19,7 @@ Let's start with an example.
 The examples of this post are taken from this fantastic page about optics: [[https://impurepics.com/posts/2020-03-22-optics.html][Link]]
 **** Initial steps
 Let's define some types.
-#+begin_src amm :tangle "~/optics.sc"
+#+begin_src scala :tangle "~/optics.sc"
 object Types {
   case class Name(value: String) extends AnyVal
   case class Stock(value: Int) extends AnyVal
@@ -357,7 +357,7 @@ import cats.Monoid
 val beerStockOptional = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock)))
 #+end_src
 
-#+begin_src amm
+#+begin_src scala
 implicit val stockMonoid: Monoid[Stock] = new Monoid[Stock] {
   override def empty: Stock = Stock(0)
   override def combine(x: Stock, y: Stock): Stock = Stock(x.value + y.value)
@@ -365,9 +365,9 @@ implicit val stockMonoid: Monoid[Stock] = new Monoid[Stock] {
 #+end_src
 
 #+RESULTS:
-: stockMonoid: Monoid[Stock] = ammonite.$sess.cmd4$$anon$1@6afced93
+: stockMonoid: Monoid[Stock] = scalaonite.$sess.cmd4$$anon$1@6afced93
 
-#+begin_src amm
+#+begin_src scala
 // uses the Stock monoid
 beersL.composeOptional(beerStockOptional).fold(beers) // Stock(7)
 #+end_src
@@ -387,7 +387,7 @@ So we want to focus on the ~Stock~ of the beers in our bar, starting from the to
 First we define the separate optics. Yet again, i'm not using the macros provided by Monocle.
 
 Imports
-#+begin_src amm
+#+begin_src scala
 import $ivy.`org.typelevel::cats-core:2.1.1`
 import $ivy.`com.github.julien-truffaut::monocle-core:3.0.0-M4`
 import $ivy.`com.github.julien-truffaut::monocle-macro:3.0.0-M4`
@@ -434,7 +434,7 @@ val barStocks: Traversal[Bar, Stock] =
 
 And there we have it. Now, to test it out.
 
-#+begin_src amm
+#+begin_src scala
 val firstFridgeBeer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
 val firstFridgeBeer2 = Beer(Some(Name("")), Some(Stock(2)))
 val secondFridgeBeer1 = Beer(Some(Name("Starobrno")), None)
@@ -496,13 +496,13 @@ what it needs to compose, and whether it can compose them at all.
 So, the above lens for our bar would look like this in Monocle 3 (for Scala 2):
 
 Imports
-#+begin_src amm
+#+begin_src scala
 import monocle.macros.syntax.all._
 import monocle.Focus
 #+end_src
 
 All stock
-#+begin_src amm
+#+begin_src scala
 def barStocks(bar: Bar) = bar
   .focus(_.fridges).each
   .andThen(Focus[Fridge](_.beers)).each
@@ -516,7 +516,7 @@ println(barStocks(bar).foldMap(identity)) // sadly there doesn't seem to be a fo
 : defined function barStocks
 
 Bump stock
-#+begin_src amm
+#+begin_src scala
 val bumpedBar = barStocks(bar)
   .modify(s => Stock(s.value + 1))
 

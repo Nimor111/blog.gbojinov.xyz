@@ -25,7 +25,7 @@ The examples of this post are taken from this fantastic page about optics: [Link
 
 Let's define some types.
 
-```amm
+```scala
 object Types {
   case class Name(value: String) extends AnyVal
   case class Stock(value: Int) extends AnyVal
@@ -402,14 +402,14 @@ import cats.Monoid
 val beerStockOptional = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock)))
 ```
 
-```amm
+```scala
 implicit val stockMonoid: Monoid[Stock] = new Monoid[Stock] {
   override def empty: Stock = Stock(0)
   override def combine(x: Stock, y: Stock): Stock = Stock(x.value + y.value)
 }
 ```
 
-```amm
+```scala
 // uses the Stock monoid
 beersL.composeOptional(beerStockOptional).fold(beers) // Stock(7)
 ```
@@ -435,7 +435,7 @@ First we define the separate optics. Yet again, i'm not using the macros provide
 
 Imports
 
-```amm
+```scala
 import $ivy.`org.typelevel::cats-core:2.1.1`
 import $ivy.`com.github.julien-truffaut::monocle-core:3.0.0-M4`
 import $ivy.`com.github.julien-truffaut::monocle-macro:3.0.0-M4`
@@ -488,7 +488,7 @@ val barStocks: Traversal[Bar, Stock] =
 
 And there we have it. Now, to test it out.
 
-```amm
+```scala
 val firstFridgeBeer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
 val firstFridgeBeer2 = Beer(Some(Name("")), Some(Stock(2)))
 val secondFridgeBeer1 = Beer(Some(Name("Starobrno")), None)
@@ -556,14 +556,14 @@ So, the above lens for our bar would look like this in Monocle 3 (for Scala 2):
 
 Imports
 
-```amm
+```scala
 import monocle.macros.syntax.all._
 import monocle.Focus
 ```
 
 All stock
 
-```amm
+```scala
 def barStocks(bar: Bar) = bar
   .focus(_.fridges).each
   .andThen(Focus[Fridge](_.beers)).each
@@ -574,7 +574,7 @@ println(barStocks(bar).foldMap(identity)) // sadly there doesn't seem to be a fo
 
 Bump stock
 
-```amm
+```scala
 val bumpedBar = barStocks(bar)
   .modify(s => Stock(s.value + 1))
 
