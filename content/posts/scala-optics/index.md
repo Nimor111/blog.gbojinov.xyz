@@ -1,6 +1,6 @@
 +++
 title = "Peering into Scala optics with Monocle"
-author = ["gbojinov"]
+author = ["lt-34502"]
 date = 2020-10-21T00:00:00+03:00
 tags = ["scala", "optics", "fp"]
 draft = false
@@ -25,7 +25,7 @@ The examples of this post are taken from this fantastic page about optics: [Link
 
 Let's define some types.
 
-```scala
+```amm
 object Types {
   case class Name(value: String) extends AnyVal
   case class Stock(value: Int) extends AnyVal
@@ -400,12 +400,16 @@ import cats.Monoid
 
 // Composing a lens for Stock and a prism for Option yields an Optional
 val beerStockOptional = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock)))
+```
 
+```amm
 implicit val stockMonoid: Monoid[Stock] = new Monoid[Stock] {
   override def empty: Stock = Stock(0)
   override def combine(x: Stock, y: Stock): Stock = Stock(x.value + y.value)
 }
+```
 
+```amm
 // uses the Stock monoid
 beersL.composeOptional(beerStockOptional).fold(beers) // Stock(7)
 ```
@@ -431,8 +435,14 @@ First we define the separate optics. Yet again, i'm not using the macros provide
 
 Imports
 
-```scala
+```amm
+import $ivy.`org.typelevel::cats-core:2.1.1`
+import $ivy.`com.github.julien-truffaut::monocle-core:3.0.0-M4`
+import $ivy.`com.github.julien-truffaut::monocle-macro:3.0.0-M4`
 import monocle.{Lens, Traversal, Optional}
+import Types._
+import cats.implicits._
+import cats.Monoid
 ```
 
 A Lens for the "fridges" field
@@ -462,7 +472,7 @@ val beersL: Traversal[List[Beer], Beer] = Traversal.fromTraverse[List, Beer]
 An optional for the "stock" field, since it's optional
 
 ```scala
-val beerStock: Optional[Beer, Stock] = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock))
+val beerStock: Optional[Beer, Stock] = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock)))
 ```
 
 And now... we compose. The function names should be self explanatory.
@@ -478,7 +488,7 @@ val barStocks: Traversal[Bar, Stock] =
 
 And there we have it. Now, to test it out.
 
-```scala
+```amm
 val firstFridgeBeer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
 val firstFridgeBeer2 = Beer(Some(Name("")), Some(Stock(2)))
 val secondFridgeBeer1 = Beer(Some(Name("Starobrno")), None)
@@ -493,6 +503,11 @@ val bar = Bar(fridges)
 Get the total stock. We again require the `Stock` monoid implicit in scope.
 
 ```scala
+implicit val stockMonoid: Monoid[Stock] = new Monoid[Stock] {
+  override def empty: Stock = Stock(0)
+  override def combine(x: Stock, y: Stock): Stock = Stock(x.value + y.value)
+}
+
 println(barStocks.fold(bar)) // Stock(13)
 ```
 
@@ -515,6 +530,56 @@ val barStocksOperators: Traversal[Bar, Stock] =
 ```
 
 I'll leave the decision up to you whether to use them or not.
+
+
+## Monocle 3 {#monocle-3}
+
+`Disclaimer`: I will be using Monocle 3 with Scala 2 here, so many of the features of the Focus macro will not be
+present. I'll probably do a separate blog post for Scala 3.
+
+We used Monocle 2 throughout this post as the API it provides is good for explaining optics from the ground up
+and seeing the different types and how they compose.
+However, for production use, the recently released version 3 of Monocle made some pretty nice simplifications to
+the API so that it's a lot easier to use without having to know all these fancy words.
+
+The gist of it is that it introduces a `Focus` type class with a `focus` macro that represents a path in a
+nested data structure. Depending on the type of field you apply it to, can figure out on its own whether to
+generate a `Lens`, `Prism`, `Traversal`, and so on, so you don't have to do it yourself. Even though i'm a fan
+of knowing how libraries and concepts work from the ground up, this definitely makes using the library as a
+beginner a lot easier.
+
+In line with `Focus`, all the `compose*` functions are being deprecated in favour of the `andThen` function,
+which serves the same purpose - it can figure out on its own depending on what type of optics you apply to it,
+what it needs to compose, and whether it can compose them at all.
+
+So, the above lens for our bar would look like this in Monocle 3 (for Scala 2):
+
+Imports
+
+```amm
+import monocle.macros.syntax.all._
+import monocle.Focus
+```
+
+All stock
+
+```amm
+def barStocks(bar: Bar) = bar
+  .focus(_.fridges).each
+  .andThen(Focus[Fridge](_.beers)).each
+  .andThen(Focus[Beer](_.stock)).some
+
+println(barStocks(bar).foldMap(identity)) // sadly there doesn't seem to be a fold method here
+```
+
+Bump stock
+
+```amm
+val bumpedBar = barStocks(bar)
+  .modify(s => Stock(s.value + 1))
+
+println(barStocks(bumpedBar).foldMap(identity))
+```
 
 
 ## Summary and Resources {#summary-and-resources}

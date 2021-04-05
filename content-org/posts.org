@@ -19,7 +19,7 @@ Let's start with an example.
 The examples of this post are taken from this fantastic page about optics: [[https://impurepics.com/posts/2020-03-22-optics.html][Link]]
 **** Initial steps
 Let's define some types.
-#+begin_src scala
+#+begin_src amm :tangle "~/optics.sc"
 object Types {
   case class Name(value: String) extends AnyVal
   case class Stock(value: Int) extends AnyVal
@@ -29,6 +29,10 @@ object Types {
   case class Beer(name: Option[Name], stock: Option[Stock])
 }
 #+end_src
+
+#+RESULTS:
+: defined object Types
+
 And here's what a ~Bar~ would look like sent over an API in a format like JSON:
 #+begin_src javascript
 {
@@ -66,7 +70,7 @@ Let's walk through a couple of use cases of what we would like to do with our be
 - We receive a shipment of beers for our first fridge and we would like to bump all of our stock by a certain amount. How would we do that?
 
   Here's a way with regular (functional and immutable) Scala:
-   
+
   #+begin_src scala :results output
   val beer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
   val beer2 = Beer(None, Some(Stock(3)))
@@ -94,8 +98,8 @@ Let's walk through a couple of use cases of what we would like to do with our be
       fridgeTotal + beer.stock.getOrElse(Stock(0)).value))
 
   // 8
-  #+end_src 
-  
+  #+end_src
+
   Again, less than ideal.
 
 So, what can we do to make this code more concise and less convoluted?
@@ -104,7 +108,7 @@ Enter optics.
 **** What do optics do and why should we care about them?
 To be able to easily traverse deeply nested data structures (which is often the case with API responses) with minimal code and without all these nested maps, folds, conditionals, etc. Optics make very good use of the compositional and pure nature of FP.
 
-Optics are an abstraction characterized by several operations, which revolve around getting a particular field, setting it, or modifying it. 
+Optics are an abstraction characterized by several operations, which revolve around getting a particular field, setting it, or modifying it.
 
 There are several types of optics.
 
@@ -131,7 +135,7 @@ abstract class SimpleLens[S, A] {
 
 The type is actually a bit more complicated
 #+begin_src scala
-abstract class Lens[S, T, A, B] { 
+abstract class Lens[S, T, A, B] {
   def get(s: S): A
   def set(s: S, b: B): T
   def modify(s: S)(f: A => B): T = set(s, f(get(s)))
@@ -148,7 +152,7 @@ type SimpleLens[S, A] = Lens[S, S, A, A]
 
 The ~SimpleLens~ is a convenient alias for when the input and output types are the same.
 
-We create specific lenses for the fields we want to work with, e.g. we "focus" on the field. 
+We create specific lenses for the fields we want to work with, e.g. we "focus" on the field.
 
 To create a lens for the name field of the ~Beer~ type (let's ignore the ~Option~ there for now, we'll get to that later), we need a way to get a field from a case class and a way to set it. The minimal implementation for a ~Lens~ is to define ~get~ and ~set~ since ~modify~ can be expressed through them.
 
@@ -189,7 +193,7 @@ beerStock.modify(beer)(s => Stock(s.value + 5))
 #+end_src
 **** Prism
 ***** Theory
-Prisms are used for getting and setting fields of deeply nested product types when the value might not be there. More generally, a prism captures a certain constructor of a sum type (since Option is simply a sum type with two constructors). 
+Prisms are used for getting and setting fields of deeply nested product types when the value might not be there. More generally, a prism captures a certain constructor of a sum type (since Option is simply a sum type with two constructors).
 
 A nice way to think about prisms is that they define an is-a relationship and lenses define a has-a relationship.
 
@@ -351,15 +355,21 @@ import cats.Monoid
 
 // Composing a lens for Stock and a prism for Option yields an Optional
 val beerStockOptional = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock)))
+#+end_src
 
+#+begin_src amm
 implicit val stockMonoid: Monoid[Stock] = new Monoid[Stock] {
   override def empty: Stock = Stock(0)
   override def combine(x: Stock, y: Stock): Stock = Stock(x.value + y.value)
 }
+#+end_src
 
+#+RESULTS:
+: stockMonoid: Monoid[Stock] = ammonite.$sess.cmd4$$anon$1@6afced93
+
+#+begin_src amm
 // uses the Stock monoid
 beersL.composeOptional(beerStockOptional).fold(beers) // Stock(7)
-
 #+end_src
 *** Composability
 Now that we've looked at some of the main types of optics, it's time to see how they can be used with real data (or in our case, the data we defined at the beginning of the post). The power of optics lies in their ability to compose. By composing them we can perform the nested traversal that makes optics so useful.
@@ -369,14 +379,23 @@ Skipping over the theory, as that is a post on its own, the main thing to note i
 I'm going to go straight to the Monocle examples for this.
 *** Optics in full
 **** Optics for a bar
+:PROPERTIES:
+:header-args+: :tangle "~/optics.sc"
+:END:
 So we want to focus on the ~Stock~ of the beers in our bar, starting from the top. Let's see how that goes.
 
 First we define the separate optics. Yet again, i'm not using the macros provided by Monocle.
 
 Imports
-#+begin_src scala
+#+begin_src amm
+import $ivy.`org.typelevel::cats-core:2.1.1`
+import $ivy.`com.github.julien-truffaut::monocle-core:3.0.0-M4`
+import $ivy.`com.github.julien-truffaut::monocle-macro:3.0.0-M4`
 import monocle.{Lens, Traversal, Optional}
-#+end_src 
+import Types._
+import cats.implicits._
+import cats.Monoid
+#+end_src
 
 A Lens for the "fridges" field
 #+begin_src scala
@@ -400,7 +419,7 @@ val beersL: Traversal[List[Beer], Beer] = Traversal.fromTraverse[List, Beer]
 
 An optional for the "stock" field, since it's optional
 #+begin_src scala
-val beerStock: Optional[Beer, Stock] = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock))
+val beerStock: Optional[Beer, Stock] = Optional[Beer, Stock](_.stock)(newStock => beer => beer.copy(stock = Some(newStock)))
 #+end_src
 
 And now... we compose. The function names should be self explanatory.
@@ -415,7 +434,7 @@ val barStocks: Traversal[Bar, Stock] =
 
 And there we have it. Now, to test it out.
 
-#+begin_src scala
+#+begin_src amm
 val firstFridgeBeer1 = Beer(Some(Name("Starobrno")), Some(Stock(5)))
 val firstFridgeBeer2 = Beer(Some(Name("")), Some(Stock(2)))
 val secondFridgeBeer1 = Beer(Some(Name("Starobrno")), None)
@@ -429,6 +448,11 @@ val bar = Bar(fridges)
 
 Get the total stock. We again require the ~Stock~ monoid implicit in scope.
 #+begin_src scala
+implicit val stockMonoid: Monoid[Stock] = new Monoid[Stock] {
+  override def empty: Stock = Stock(0)
+  override def combine(x: Stock, y: Stock): Stock = Stock(x.value + y.value)
+}
+
 println(barStocks.fold(bar)) // Stock(13)
 #+end_src
 
@@ -447,6 +471,67 @@ val barStocksOperators: Traversal[Bar, Stock] =
 #+end_src
 
 I'll leave the decision up to you whether to use them or not.
+*** Monocle 3
+:PROPERTIES:
+:header-args+: :tangle "~/optics.sc"
+:END:
+=Disclaimer=: I will be using Monocle 3 with Scala 2 here, so many of the features of the Focus macro will not be
+present. I'll probably do a separate blog post for Scala 3.
+
+We used Monocle 2 throughout this post as the API it provides is good for explaining optics from the ground up
+and seeing the different types and how they compose.
+However, for production use, the recently released version 3 of Monocle made some pretty nice simplifications to
+the API so that it's a lot easier to use without having to know all these fancy words.
+
+The gist of it is that it introduces a =Focus= type class with a =focus= macro that represents a path in a
+nested data structure. Depending on the type of field you apply it to, can figure out on its own whether to
+generate a =Lens=, =Prism=, =Traversal=, and so on, so you don't have to do it yourself. Even though i'm a fan
+of knowing how libraries and concepts work from the ground up, this definitely makes using the library as a
+beginner a lot easier.
+
+In line with =Focus=, all the =compose*= functions are being deprecated in favour of the =andThen= function,
+which serves the same purpose - it can figure out on its own depending on what type of optics you apply to it,
+what it needs to compose, and whether it can compose them at all.
+
+So, the above lens for our bar would look like this in Monocle 3 (for Scala 2):
+
+Imports
+#+begin_src amm
+import monocle.macros.syntax.all._
+import monocle.Focus
+#+end_src
+
+All stock
+#+begin_src amm
+def barStocks(bar: Bar) = bar
+  .focus(_.fridges).each
+  .andThen(Focus[Fridge](_.beers)).each
+  .andThen(Focus[Beer](_.stock)).some
+
+println(barStocks(bar).foldMap(identity)) // sadly there doesn't seem to be a fold method here
+#+end_src
+
+#+RESULTS:
+: Stock(13)
+: defined function barStocks
+
+Bump stock
+#+begin_src amm
+val bumpedBar = barStocks(bar)
+  .modify(s => Stock(s.value + 1))
+
+println(barStocks(bumpedBar).foldMap(identity))
+#+end_src
+
+#+RESULTS:
+: Stock(16)
+: bumpedBar: Bar = Bar(
+:   List(
+:     Fridge(List(Beer(Some(Name("Starobrno")), Some(Stock(6))), Beer(Some(Name("")), Some(Stock(3))))),
+:     Fridge(List(Beer(Some(Name("Starobrno")), None), Beer(Some(Name("Staropramen")), Some(Stock(7)))))
+:   )
+: )
+
 *** Summary and Resources
 I hope this journey through optics has been a useful and informative one for you. When used correctly, they can result in much cleaner and declarative code for accessing fields. Granted, you do need a bit of context, but that's the usual case. And they have fancy names!
 
