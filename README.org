@@ -2,7 +2,7 @@
 My personal blog, build on Hugo and using the wonderful [[https://github.com/panr/hugo-theme-terminal][Terminal]] theme.
 Posts are written in an org mode file ~posts.org~, and I use [[https://ox-hugo.scripter.co/][ox-hugo]] to export it to hugo markdown.
 
-** Building locally 
+** Building locally
 The project comes with a nix shell as a development environment. Install [[https://nixos.org/download.html][Nix]] and then run the following command from the root of the project:
 
 #+begin_src sh
@@ -11,7 +11,13 @@ nix-shell shell.nix
 
 You can also use [[https://direnv.net/][direnv]].
 
-After that you can use the ~Makefile~ commands.
+Also make sure to initialize the theme submodules
+
+#+begin_src sh
+git submodule update --init
+#+end_src
+
+After that you can use the =Makefile= commands.
 To build the site:
 #+begin_src sh
 make build

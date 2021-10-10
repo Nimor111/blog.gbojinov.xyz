@@ -1,53 +1,33 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
-  
   <url>
     <loc>https://blog.gbojinov.xyz/tags/fp/</loc>
     <lastmod>2020-10-21T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://blog.gbojinov.xyz/</loc>
     <lastmod>2020-10-21T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://blog.gbojinov.xyz/tags/optics/</loc>
     <lastmod>2020-10-21T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://blog.gbojinov.xyz/posts/scala-optics/</loc>
     <lastmod>2020-10-21T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://blog.gbojinov.xyz/posts/</loc>
     <lastmod>2020-10-21T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://blog.gbojinov.xyz/tags/scala/</loc>
     <lastmod>2020-10-21T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://blog.gbojinov.xyz/tags/</loc>
     <lastmod>2020-10-21T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://blog.gbojinov.xyz/about/</loc>
-    <lastmod>2020-10-03T00:00:00+03:00</lastmod>
-  </url>
-  
-  <url>
+    <lastmod>2020-10-03T00:00:00+00:00</lastmod>
+  </url><url>
     <loc>https://blog.gbojinov.xyz/categories/</loc>
-  </url>
-  
-  <url>
+  </url><url>
     <loc>https://blog.gbojinov.xyz/categories/posts/</loc>
   </url>
-  
 </urlset>
