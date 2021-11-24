@@ -10,6 +10,8 @@
 :EXPORT_HUGO_CUSTOM_FRONT_MATTER: :summary An example of optics in Scala using the Monocle library.
 :EXPORT_HUGO_CUSTOM_FRONT_MATTER+: :image images/diffraction.png
 :END:
+*** Test link
+[[file:about.org][About page]]
 *** Introduction
 Salutations. Today i'm going to do an overview of one of my favourite functional programming concepts - optics. Most articles on this topic focus on Haskell so I'm going to try to present the topic using Scala and the [[https://github.com/optics-dev/monocle][Monocle]] library.
 
